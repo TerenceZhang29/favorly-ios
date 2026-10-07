@@ -15,4 +15,14 @@ struct DistanceFormatterTests {
     func metersAreShownAsMilesRoundedToOneDecimal(meters: Double, expected: String) {
         #expect(DistanceFormatter.miles(meters) == expected)
     }
+
+    @Test(arguments: [
+        (0.0, "less than 0.1 miles"),
+        (160.9, "less than 0.1 miles"),
+        (643.7376, "0.4 miles"),
+        (1609.344, "1.0 miles"),
+    ])
+    func metersAreSpelledOutForVoiceOver(meters: Double, expected: String) {
+        #expect(DistanceFormatter.spokenMiles(meters) == expected)
+    }
 }

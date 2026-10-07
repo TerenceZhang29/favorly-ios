@@ -107,13 +107,7 @@ struct RequestDetailView: View {
     }
 
     private func fact(_ label: String, _ value: String, id: String) -> some View {
-        HStack {
-            Text(label)
-            Spacer()
-            Text(value)
-                .foregroundStyle(.secondary)
-                .multilineTextAlignment(.trailing)
-                .accessibilityIdentifier("detail.\(id)")
-        }
+        FactRow(label: label, value: value)
+            .accessibilityIdentifier("detail.\(id)")
     }
 }
