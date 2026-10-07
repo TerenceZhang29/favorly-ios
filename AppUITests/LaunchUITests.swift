@@ -1,17 +1,18 @@
 import XCTest
 
-final class LaunchUITests: XCTestCase {
-    override func setUp() {
-        continueAfterFailure = false
-    }
-
+final class LaunchUITests: UITestCase {
     @MainActor
     func testLaunchShowsFourTabs() {
-        let app = XCUIApplication()
-        app.launch()
+        launchApp()
 
         for title in ["Nearby", "Post", "My Activity", "Dev Settings"] {
             XCTAssertTrue(app.tabBars.buttons[title].waitForExistence(timeout: 5), "Missing tab: \(title)")
         }
+    }
+
+    @MainActor
+    func testLaunchWithoutTheTestingFlagStillLoadsNearby() {
+        app.launch()
+        waitFor(element("nearby.count"), toRead: "7 requests")
     }
 }
