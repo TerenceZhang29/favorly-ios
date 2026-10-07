@@ -47,11 +47,7 @@ final class RequestDetailViewModel {
 
     /// "Open", "Claimed by Bea", "Completed" or "Cancelled".
     var statusText: String {
-        guard let request else { return "" }
-        if request.status == .claimed, let helperName {
-            return "Claimed by \(helperName)"
-        }
-        return request.status.title
+        request.map { environment.session.statusText(for: $0) } ?? ""
     }
 
     var canPickUp: Bool {
