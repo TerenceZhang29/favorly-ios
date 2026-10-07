@@ -1,0 +1,27 @@
+included:
+  - App
+  - AppUITests
+  - Packages/FavorlyKit/Package.swift
+  - Packages/FavorlyKit/Sources
+  - Packages/FavorlyKit/Tests
+
+excluded:
+  - Packages/FavorlyKit/.build
+
+opt_in_rules:
+  - empty_count
+  - first_where
+  - sorted_imports
+
+# SwiftFormat adds trailing commas to multi-line collections.
+trailing_comma:
+  mandatory_comma: true
+
+line_length:
+  warning: 120
+  error: 160
+  ignores_urls: true
+
+identifier_name:
+  excluded:
+    - id
