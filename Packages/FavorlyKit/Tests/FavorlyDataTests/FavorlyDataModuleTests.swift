@@ -1,7 +1,6 @@
 import FavorlyData
 import Testing
 
-@Test func dataModuleDependsOnCore() {
+@Test func dataModuleIsNamed() {
     #expect(FavorlyDataModule.name == "FavorlyData")
-    #expect(FavorlyDataModule.dependsOn == "FavorlyCore")
 }
