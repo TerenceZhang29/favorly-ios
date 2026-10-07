@@ -2,15 +2,15 @@
 
 Updated by every coding session. Read this after `docs/PLAN.md` and continue from the first unchecked item.
 
-**Current phase:** 1D. App environment and navigation shell
-**Next task:** Add `AppEnvironment` and its SwiftUI `EnvironmentKey` to `FavorlyFeatures/Environment/`, then `AppEnvironment.demo()` in the App target
+**Current phase:** 1E. Browse nearby + request detail + pick up (Flow 2)
+**Next task:** Add `NearbyViewModel` with its `state` enum, `radius` and `load()`, replacing the debug line in `NearbyView`
 
 ## Phase checklist
 
 - [x] **1A.** Repo scaffold and empty app
 - [x] **1B.** Core domain (models, protocols, rules, distance)
 - [x] **1C.** Mock data layer (repository, location, session, seed data)
-- [ ] **1D.** App environment and navigation shell (tabs, Dev Settings)
+- [x] **1D.** App environment and navigation shell (tabs, Dev Settings)
 - [ ] **1E.** Browse nearby + request detail + pick up (Flow 2)
 - [ ] **1F.** Post request + My Activity (Flow 1)
 - [ ] **1G.** Hardening, UI test, docs, tag `v0.1.0-prototype`
@@ -51,6 +51,15 @@ Add entries as `YYYY-MM-DD · phase · decision · reason`.
 - 2026-10-07 · 1C · `changes()` streams buffer one pending signal · the signal has no payload, so a slow subscriber needs only one refresh
 - 2026-10-07 · 1C · `FavorlyData` imports `os` (for `OSAllocatedUnfairLock` in `ChangeBroadcaster`) and `Observation` · `changes()` is not `async`, so the actor needs a lock-protected subscriber list; both are system frameworks
 - 2026-10-07 · 1C · Seed has 12 requests: from Cornell Tech, 3 open within 0.25 mi, 7 within 1 mi, 8 within 3 mi · matches the plan's "about 8" for the demo and makes each radius step visibly change the list
+- 2026-10-07 · 1D · `SessionStore` and `LocationSettings` now also require `Sendable` · `AppEnvironment` must be `Sendable` to be an environment default and to be captured by view-model tasks; `@MainActor` classes already are, so conformers need no change
+- 2026-10-07 · 1D · The environment value uses SwiftUI's `@Entry` macro (`EnvironmentValues.appEnvironment`), where the plan says `EnvironmentKey` · `@Entry` generates the same key; SwiftFormat rewrites a hand-written key to it
+- 2026-10-07 · 1D · `AppEnvironment.preview()` is built from small read-only stubs inside Features (`PreviewRequestRepository`, `PreviewLocationProvider`, `PreviewSessionStore`, `PreviewLocationSettings`) · Features cannot import Data, and previews and the environment default still need something to run on
+- 2026-10-07 · 1D · A view with no injected environment gets `AppEnvironment.sharedPreview` through `MainActor.assumeIsolated` · the default must be produced from a nonisolated context; SwiftUI reads environment values on the main actor. The app always injects `AppEnvironment.demo()`
+- 2026-10-07 · 1D · `FavorlyFeaturesTests` depends on `FavorlyData` · the plan calls for view model tests against the mocks; only the Features sources are barred from importing Data
+- 2026-10-07 · 1D · Dev Settings lists users and locations as rows of buttons with a checkmark, not `Picker`s · each row gets a stable `accessibilityIdentifier` the UI tests can tap
+- 2026-10-07 · 1D · No Dev Settings view model · the screen only forwards taps to the session, location settings and repository, and holds no logic to test; `DevSettingsUITests` covers it end to end
+- 2026-10-07 · 1D · "Reset demo data" restores requests only, not the current user or location · the plan lists it under data controls
+- 2026-10-07 · 1D · The debug line reads "Alex @ Cornell Tech, Roosevelt Island", using the full location label, where the plan's example shows "Alex @ Cornell Tech" · the label is the plan's own preset name
 - 2026-10-07 · 1A · Tab bar buttons are found by label in UI tests (`app.tabBars.buttons["Nearby"]`) · SwiftUI does not reliably pass a tab item's `accessibilityIdentifier` to the tab bar button
 
 ## Known issues
@@ -59,13 +68,14 @@ Add entries as `YYYY-MM-DD · phase · decision · reason`.
 
 ## Open questions
 
-- 1B and 1C were each branched from the previous phase branch because the earlier pull requests were not merged yet. Merge them in order, or merge the latest alone, which contains the earlier ones.
+- 1B, 1C and 1D were each branched from the previous phase branch because the earlier pull requests were not merged yet. Merge them in order, or merge the latest alone, which contains the earlier ones.
 - The plan's 1A says "first commit pushed to `main`", while `CLAUDE.md` says one branch per phase. Resolved as: the pre-existing docs were committed straight to `main`, and the 1A work is on `phase/1a-scaffold` for a pull request.
 
 ## Session log
 
 Newest first, one line per session: `YYYY-MM-DD · phase · what was done · next step`.
 
+- 2026-10-07 · 1D · `AppEnvironment` with preview stubs and environment value, `AppEnvironment.demo()` in the App target, four tabs each in a `NavigationStack`, working Dev Settings, `DevSettingsUITests`; `swift test` and `xcodebuild test` pass · start 1E on `phase/1e-nearby-detail`
 - 2026-10-07 · 1C · Seed fixtures (`LocationPresets`, `DemoUsers`, `DemoRequests`), `MockRequestRepository`, `MockLocationProvider`, `MockLocationSettings`, `MockSessionStore` with 40 tests; `swift test` and `xcodebuild test` pass · start 1D on `phase/1d-app-shell`
 - 2026-10-07 · 1B · Models, service protocols, `FavorlyError`, `RequestRules`, `DraftValidator`, `Distance`, `DistanceFormatter` in `FavorlyCore` with 28 tests; Core imports only Foundation; `swift test` and `xcodebuild test` pass · start 1C on `phase/1c-mock-data`
 - 2026-10-07 · 1A · Package with three library and three test targets, `project.yml`, app with four empty tabs, launch UI test, lint/format configs, README, ARCHITECTURE; `swift test` and `xcodebuild test` (iPhone 17, iOS 27.0) pass · start 1B on `phase/1b-core-domain`
