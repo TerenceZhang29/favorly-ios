@@ -2,8 +2,8 @@
 
 Updated by every coding session. Read this after `docs/PLAN.md` and continue from the first unchecked item.
 
-**Current phase:** 1G. Hardening, UI test, docs
-**Next task:** Add the `-uiTesting` launch argument (zero artificial delay) in the App target and turn the Flow 1 UI test into `DemoFlowUITests`
+**Current phase:** Phase 1 complete (`v0.1.0-prototype`)
+**Next task:** Merge the phase pull requests into `main`, then run the demo script in the README by hand once. Phase 2 has no plan yet; see "What later phases will plug in" in `docs/PLAN.md`
 
 ## Phase checklist
 
@@ -13,7 +13,7 @@ Updated by every coding session. Read this after `docs/PLAN.md` and continue fro
 - [x] **1D.** App environment and navigation shell (tabs, Dev Settings)
 - [x] **1E.** Browse nearby + request detail + pick up (Flow 2)
 - [x] **1F.** Post request + My Activity (Flow 1)
-- [ ] **1G.** Hardening, UI test, docs, tag `v0.1.0-prototype`
+- [x] **1G.** Hardening, UI test, docs, tag `v0.1.0-prototype`
 
 ## Confirmed decisions
 
@@ -75,23 +75,35 @@ Add entries as `YYYY-MM-DD · phase · decision · reason`.
 - 2026-10-07 · 1F · My Activity rows show the status ("Claimed by Bea"), plus "Posted by Dana" for requests picked up from someone else · the plan lists "status and helper" for My requests and nothing for Picked up by me
 - 2026-10-07 · 1F · `statusText(for:)` moved to a `SessionStore` extension shared by Request Detail and My Activity · both screens need the same "Claimed by Bea" wording
 - 2026-10-07 · 1F · Added `PostAndGetPickedUpUITests` (Flow 1 end to end, and the two empty states) · the plan checks Flow 1 by hand; 1G turns this into `DemoFlowUITests`
+- 2026-10-07 · 1G · `-uiTesting` only sets the mock delay to zero · the plan also says it "resets data", but data is in memory and every launch already starts from the seed
+- 2026-10-07 · 1G · `DemoFlowUITests` runs the whole seven-step demo script, which contains Flow 1; it replaces 1F's `PostAndGetPickedUpUITests` · one test that mirrors the README script is easier to keep in step with it
+- 2026-10-07 · 1G · UI tests share a `UITestCase` base class (launch, lookup by identifier, wait, scroll-then-tap) · removes the duplicated helpers noted in 1F
+- 2026-10-07 · 1G · List rows speak one sentence to VoiceOver ("Need 2 eggs for a cake, Ingredient, less than 0.1 miles away, posted 12 minutes ago by Chen"); detail rows read as label plus value · the default reading split each row into fragments and read "<" literally. Added `DistanceFormatter.spokenMiles` in Core for this
+- 2026-10-07 · 1G · Detail rows stack the value under the label at accessibility text sizes, and row icons scale with the text · side-by-side text was cramped at large sizes
+- 2026-10-07 · 1G · Dev Settings rows use primary text color, not the button tint · every row looked like a link
+- 2026-10-07 · 1G · `ScreenshotUITests` regenerates the README screenshots and is skipped unless `TEST_RUNNER_SCREENSHOT_DIR` is set · an agent cannot tap through the Simulator by hand to capture them
+- 2026-10-07 · 1G · Tag `v0.1.0-prototype` points at the tip of `phase/1g-hardening`, because the phase pull requests were not merged yet · if the pull requests are squash-merged, move the tag to the resulting commit on `main`
 - 2026-10-07 · 1A · Tab bar buttons are found by label in UI tests (`app.tabBars.buttons["Nearby"]`) · SwiftUI does not reliably pass a tab item's `accessibilityIdentifier` to the tab bar button
 
 ## Known issues
 
-- The `waitFor(_:toRead:)` helper is duplicated in two UI test files. Share it in 1G.
-- UI tests run with the 300 ms artificial delay and a fresh launch per test, so the suite takes about two and a half minutes. 1G's `-uiTesting` launch argument removes the delay.
+- Not yet checked by a person: the demo script has only been run by `DemoFlowUITests`, and VoiceOver labels were set in code and read back through UI tests, not listened to with VoiceOver on.
+- The segmented radius and activity pickers do not grow with Dynamic Type. That is how the system control behaves; everything else was checked at the `accessibility-large` text size.
+- The optional GitHub Actions CI from 1A is still not set up.
+- The UI test suite takes a little over three minutes, mostly app launches and typing.
+- If a UI test fails, `xcodebuild` can sit for several minutes collecting diagnostics before it exits.
 - `xcodebuild` prints `appintentsmetadataprocessor ... Metadata extraction skipped` warnings. They come from an Xcode build tool, not the Swift compiler, and need no action.
 
 ## Open questions
 
-- 1B through 1F were each branched from the previous phase branch because the earlier pull requests were not merged yet. Merge them in order, or merge the latest alone, which contains the earlier ones.
+- 1B through 1G were each branched from the previous phase branch because the earlier pull requests were not merged yet. Merge them in order, or merge the latest alone, which contains the earlier ones.
 - The plan's 1A says "first commit pushed to `main`", while `CLAUDE.md` says one branch per phase. Resolved as: the pre-existing docs were committed straight to `main`, and the 1A work is on `phase/1a-scaffold` for a pull request.
 
 ## Session log
 
 Newest first, one line per session: `YYYY-MM-DD · phase · what was done · next step`.
 
+- 2026-10-07 · 1G · `-uiTesting` flag, `DemoFlowUITests`, accessibility pass, README with demo script and screenshots, architecture notes; a fresh clone generates, lints and passes `swift test` and `xcodebuild test`; tagged `v0.1.0-prototype` · merge the pull requests, run the demo by hand
 - 2026-10-07 · 1F · `PostRequestViewModel`, `PostRequestView`, `ActivityViewModel`, `ActivityView`, `ActivityRow`, `ActivitySegment`, post-then-highlight navigation; 56 Features tests and Flow 1 UI tests; `swift test` and `xcodebuild test` pass · start 1G on `phase/1g-hardening`
 - 2026-10-07 · 1E · `NearbyViewModel`, `NearbyView`, `RequestRow`, `RadiusOption`, `RequestDetailViewModel`, `RequestDetailView`, shared display helpers; 38 Features tests and Flow 2 UI tests; `swift test` and `xcodebuild test` pass · start 1F on `phase/1f-post-activity`
 - 2026-10-07 · 1D · `AppEnvironment` with preview stubs and environment value, `AppEnvironment.demo()` in the App target, four tabs each in a `NavigationStack`, working Dev Settings, `DevSettingsUITests`; `swift test` and `xcodebuild test` pass · start 1E on `phase/1e-nearby-detail`
