@@ -2,8 +2,8 @@
 
 Updated by every coding session. Read this after `docs/PLAN.md` and continue from the first unchecked item.
 
-**Current phase:** 1E. Browse nearby + request detail + pick up (Flow 2)
-**Next task:** Add `NearbyViewModel` with its `state` enum, `radius` and `load()`, replacing the debug line in `NearbyView`
+**Current phase:** 1F. Post request + My Activity (Flow 1)
+**Next task:** Add `PostRequestViewModel` (form fields, live validation, tagged location, `submit()`), replacing the placeholder `PostRequestView`
 
 ## Phase checklist
 
@@ -11,7 +11,7 @@ Updated by every coding session. Read this after `docs/PLAN.md` and continue fro
 - [x] **1B.** Core domain (models, protocols, rules, distance)
 - [x] **1C.** Mock data layer (repository, location, session, seed data)
 - [x] **1D.** App environment and navigation shell (tabs, Dev Settings)
-- [ ] **1E.** Browse nearby + request detail + pick up (Flow 2)
+- [x] **1E.** Browse nearby + request detail + pick up (Flow 2)
 - [ ] **1F.** Post request + My Activity (Flow 1)
 - [ ] **1G.** Hardening, UI test, docs, tag `v0.1.0-prototype`
 
@@ -60,21 +60,31 @@ Add entries as `YYYY-MM-DD · phase · decision · reason`.
 - 2026-10-07 · 1D · No Dev Settings view model · the screen only forwards taps to the session, location settings and repository, and holds no logic to test; `DevSettingsUITests` covers it end to end
 - 2026-10-07 · 1D · "Reset demo data" restores requests only, not the current user or location · the plan lists it under data controls
 - 2026-10-07 · 1D · The debug line reads "Alex @ Cornell Tech, Roosevelt Island", using the full location label, where the plan's example shows "Alex @ Cornell Tech" · the label is the plan's own preset name
+- 2026-10-07 · 1E · View models take the `AppEnvironment` in `init`; `RootView` reads it from the SwiftUI environment and passes it down · a view model has to exist before the view body runs, so it cannot read `@Environment` itself
+- 2026-10-07 · 1E · Location and radius changes reload through `.task(id: viewModel.reloadKey)` in the view; repository writes reload through `viewModel.observeChanges()` · the plan says the view model "observes" both; this keeps the view model free of observation plumbing and easy to test
+- 2026-10-07 · 1E · A list already on screen stays visible while it reloads; only the first load and a retry after an error show the spinner · avoids a flicker on every radius tap and every write
+- 2026-10-07 · 1E · Nearby keeps the debug line ("Alex @ Cornell Tech, Roosevelt Island") as its location header, and shows a count ("7 requests") above the list · on one laptop the demo needs to show who is signed in; the count makes radius changes obvious and gives UI tests something stable to read
+- 2026-10-07 · 1E · The detail status row reads "Claimed by Bea" while claimed, with a separate Helper row for claimed and completed requests · matches the demo script's wording
+- 2026-10-07 · 1E · Only Pick up asks for confirmation; Cancel request and Mark completed act at once · the plan asks for a dialog before Pick up only
+- 2026-10-07 · 1E · When an action fails, the detail screen shows the message and reloads the request · after `alreadyClaimed` the user should see who claimed it
+- 2026-10-07 · 1E · Added `BrowseAndPickUpUITests` (Flow 2, own request has no Pick up, empty and error states) · the plan checks Flow 2 by hand; an agent cannot, so the flow is automated
 - 2026-10-07 · 1A · Tab bar buttons are found by label in UI tests (`app.tabBars.buttons["Nearby"]`) · SwiftUI does not reliably pass a tab item's `accessibilityIdentifier` to the tab bar button
 
 ## Known issues
 
+- UI tests run with the 300 ms artificial delay and a fresh launch per test, so the suite takes about 80 seconds. 1G's `-uiTesting` launch argument removes the delay.
 - `xcodebuild` prints `appintentsmetadataprocessor ... Metadata extraction skipped` warnings. They come from an Xcode build tool, not the Swift compiler, and need no action.
 
 ## Open questions
 
-- 1B, 1C and 1D were each branched from the previous phase branch because the earlier pull requests were not merged yet. Merge them in order, or merge the latest alone, which contains the earlier ones.
+- 1B through 1E were each branched from the previous phase branch because the earlier pull requests were not merged yet. Merge them in order, or merge the latest alone, which contains the earlier ones.
 - The plan's 1A says "first commit pushed to `main`", while `CLAUDE.md` says one branch per phase. Resolved as: the pre-existing docs were committed straight to `main`, and the 1A work is on `phase/1a-scaffold` for a pull request.
 
 ## Session log
 
 Newest first, one line per session: `YYYY-MM-DD · phase · what was done · next step`.
 
+- 2026-10-07 · 1E · `NearbyViewModel`, `NearbyView`, `RequestRow`, `RadiusOption`, `RequestDetailViewModel`, `RequestDetailView`, shared display helpers; 38 Features tests and Flow 2 UI tests; `swift test` and `xcodebuild test` pass · start 1F on `phase/1f-post-activity`
 - 2026-10-07 · 1D · `AppEnvironment` with preview stubs and environment value, `AppEnvironment.demo()` in the App target, four tabs each in a `NavigationStack`, working Dev Settings, `DevSettingsUITests`; `swift test` and `xcodebuild test` pass · start 1E on `phase/1e-nearby-detail`
 - 2026-10-07 · 1C · Seed fixtures (`LocationPresets`, `DemoUsers`, `DemoRequests`), `MockRequestRepository`, `MockLocationProvider`, `MockLocationSettings`, `MockSessionStore` with 40 tests; `swift test` and `xcodebuild test` pass · start 1D on `phase/1d-app-shell`
 - 2026-10-07 · 1B · Models, service protocols, `FavorlyError`, `RequestRules`, `DraftValidator`, `Distance`, `DistanceFormatter` in `FavorlyCore` with 28 tests; Core imports only Foundation; `swift test` and `xcodebuild test` pass · start 1C on `phase/1c-mock-data`
