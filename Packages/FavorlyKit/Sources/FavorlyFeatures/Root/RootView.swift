@@ -1,6 +1,7 @@
 import SwiftUI
 
 public struct RootView: View {
+    @Environment(\.appEnvironment) private var environment
     @State private var selection: RootTab = .nearby
 
     public init() {}
@@ -23,7 +24,7 @@ public struct RootView: View {
     @ViewBuilder
     private func content(for tab: RootTab) -> some View {
         switch tab {
-        case .nearby: NearbyView()
+        case .nearby: NearbyView(environment: environment)
         case .post: PostRequestView()
         case .activity: ActivityView()
         case .devSettings: DevSettingsView()
