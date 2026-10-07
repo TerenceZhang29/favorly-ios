@@ -1,0 +1,110 @@
+import FavorlyCore
+import Observation
+
+@MainActor
+@Observable
+final class PostRequestViewModel {
+    enum LocationState: Equatable {
+        case loading
+        case tagged(TaggedLocation)
+        case failed(String)
+    }
+
+    /// Everything that should trigger a fresh location lookup when it changes.
+    struct ReloadKey: Hashable {
+        let preset: LocationPreset
+        let simulatesError: Bool
+    }
+
+    var title = ""
+    var details = ""
+    var category = RequestCategory.other
+    private(set) var locationState: LocationState = .loading
+    private(set) var isSubmitting = false
+    /// Why the last submit failed.
+    private(set) var submitError: String?
+
+    @ObservationIgnored private let environment: AppEnvironment
+
+    init(environment: AppEnvironment) {
+        self.environment = environment
+    }
+
+    var reloadKey: ReloadKey {
+        ReloadKey(
+            preset: environment.locationSettings.selectedPreset,
+            simulatesError: environment.locationSettings.simulatesError
+        )
+    }
+
+    // MARK: Live validation
+
+    /// What is wrong with the title, once the user has typed something.
+    var titleMessage: String? {
+        title.isEmpty ? nil : validationMessage(title: title, details: "")
+    }
+
+    var detailsMessage: String? {
+        validationMessage(title: "Valid title", details: details)
+    }
+
+    var canSubmit: Bool {
+        taggedLocation != nil && !isSubmitting && validationMessage(title: title, details: details) == nil
+    }
+
+    /// "Tagged at Cornell Tech, Roosevelt Island", or nil until the location is known.
+    var locationText: String? {
+        taggedLocation.map { "Tagged at \($0.label)" }
+    }
+
+    // MARK: Loading and submitting
+
+    func loadLocation() async {
+        do {
+            locationState = try await .tagged(environment.locationProvider.currentLocation())
+        } catch is CancellationError {
+            // A newer lookup replaced this one.
+        } catch {
+            locationState = .failed(ErrorMessage.text(for: error))
+        }
+    }
+
+    /// Posts the request as the current user. Returns it and clears the form on success.
+    func submit() async -> HelpRequest? {
+        guard canSubmit, let taggedLocation else { return nil }
+        isSubmitting = true
+        defer { isSubmitting = false }
+        submitError = nil
+
+        do {
+            let draft = NewRequestDraft(title: title, details: details, category: category, location: taggedLocation)
+            let request = try await environment.repository.create(draft, by: environment.session.currentUser.id)
+            title = ""
+            details = ""
+            category = .other
+            return request
+        } catch {
+            submitError = ErrorMessage.text(for: error)
+            return nil
+        }
+    }
+
+    // MARK: Helpers
+
+    private var taggedLocation: TaggedLocation? {
+        guard case let .tagged(location) = locationState else { return nil }
+        return location
+    }
+
+    private func validationMessage(title: String, details: String) -> String? {
+        // The validator only looks at the text, so any location will do here.
+        let location = taggedLocation ?? TaggedLocation(point: GeoPoint(latitude: 0, longitude: 0), label: "")
+        let draft = NewRequestDraft(title: title, details: details, category: category, location: location)
+        do {
+            try DraftValidator.validate(draft)
+            return nil
+        } catch {
+            return ErrorMessage.text(for: error)
+        }
+    }
+}
