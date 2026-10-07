@@ -1,8 +1,11 @@
+import FavorlyCore
 import SwiftUI
 
 public struct RootView: View {
     @Environment(\.appEnvironment) private var environment
     @State private var selection: RootTab = .nearby
+    /// The request just posted, highlighted in My Activity until the user leaves that tab.
+    @State private var newlyPostedID: RequestID?
 
     public init() {}
 
@@ -19,15 +22,27 @@ public struct RootView: View {
                 .accessibilityIdentifier("root.tab.\(tab.rawValue)")
             }
         }
+        .onChange(of: selection) { previous, _ in
+            if previous == .activity {
+                newlyPostedID = nil
+            }
+        }
     }
 
     @ViewBuilder
     private func content(for tab: RootTab) -> some View {
         switch tab {
-        case .nearby: NearbyView(environment: environment)
-        case .post: PostRequestView()
-        case .activity: ActivityView()
-        case .devSettings: DevSettingsView()
+        case .nearby:
+            NearbyView(environment: environment)
+        case .post:
+            PostRequestView(environment: environment) { request in
+                newlyPostedID = request.id
+                selection = .activity
+            }
+        case .activity:
+            ActivityView(environment: environment, highlightedRequestID: newlyPostedID)
+        case .devSettings:
+            DevSettingsView()
         }
     }
 }
