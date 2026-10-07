@@ -19,6 +19,6 @@ let package = Package(
         .target(name: "FavorlyFeatures", dependencies: ["FavorlyCore"]),
         .testTarget(name: "FavorlyCoreTests", dependencies: ["FavorlyCore"]),
         .testTarget(name: "FavorlyDataTests", dependencies: ["FavorlyData"]),
-        .testTarget(name: "FavorlyFeaturesTests", dependencies: ["FavorlyFeatures"]),
+        .testTarget(name: "FavorlyFeaturesTests", dependencies: ["FavorlyFeatures", "FavorlyData"]),
     ]
 )
