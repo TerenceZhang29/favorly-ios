@@ -2,8 +2,8 @@
 
 Updated by every coding session. Read this after `docs/PLAN.md` and continue from the first unchecked item.
 
-**Current phase:** 1F. Post request + My Activity (Flow 1)
-**Next task:** Add `PostRequestViewModel` (form fields, live validation, tagged location, `submit()`), replacing the placeholder `PostRequestView`
+**Current phase:** 1G. Hardening, UI test, docs
+**Next task:** Add the `-uiTesting` launch argument (zero artificial delay) in the App target and turn the Flow 1 UI test into `DemoFlowUITests`
 
 ## Phase checklist
 
@@ -12,7 +12,7 @@ Updated by every coding session. Read this after `docs/PLAN.md` and continue fro
 - [x] **1C.** Mock data layer (repository, location, session, seed data)
 - [x] **1D.** App environment and navigation shell (tabs, Dev Settings)
 - [x] **1E.** Browse nearby + request detail + pick up (Flow 2)
-- [ ] **1F.** Post request + My Activity (Flow 1)
+- [x] **1F.** Post request + My Activity (Flow 1)
 - [ ] **1G.** Hardening, UI test, docs, tag `v0.1.0-prototype`
 
 ## Confirmed decisions
@@ -68,22 +68,31 @@ Add entries as `YYYY-MM-DD · phase · decision · reason`.
 - 2026-10-07 · 1E · Only Pick up asks for confirmation; Cancel request and Mark completed act at once · the plan asks for a dialog before Pick up only
 - 2026-10-07 · 1E · When an action fails, the detail screen shows the message and reloads the request · after `alreadyClaimed` the user should see who claimed it
 - 2026-10-07 · 1E · Added `BrowseAndPickUpUITests` (Flow 2, own request has no Pick up, empty and error states) · the plan checks Flow 2 by hand; an agent cannot, so the flow is automated
+- 2026-10-07 · 1F · `RootView` owns the tab selection and the just-posted request ID; `PostRequestView` reports a post through an `onPosted` closure · switching tabs and highlighting are navigation concerns, so the Post view model stays unaware of other tabs
+- 2026-10-07 · 1F · The new request is highlighted in My Activity (tinted row and a "New" badge) until the user leaves that tab · the plan says "highlight" without saying for how long
+- 2026-10-07 · 1F · The Post form's category defaults to Other · none of the five is an obvious default, and the demo picks Ingredient explicitly
+- 2026-10-07 · 1F · The title message appears only once the user has typed something; the Post button is disabled either way · an empty form should not open with an error
+- 2026-10-07 · 1F · My Activity rows show the status ("Claimed by Bea"), plus "Posted by Dana" for requests picked up from someone else · the plan lists "status and helper" for My requests and nothing for Picked up by me
+- 2026-10-07 · 1F · `statusText(for:)` moved to a `SessionStore` extension shared by Request Detail and My Activity · both screens need the same "Claimed by Bea" wording
+- 2026-10-07 · 1F · Added `PostAndGetPickedUpUITests` (Flow 1 end to end, and the two empty states) · the plan checks Flow 1 by hand; 1G turns this into `DemoFlowUITests`
 - 2026-10-07 · 1A · Tab bar buttons are found by label in UI tests (`app.tabBars.buttons["Nearby"]`) · SwiftUI does not reliably pass a tab item's `accessibilityIdentifier` to the tab bar button
 
 ## Known issues
 
-- UI tests run with the 300 ms artificial delay and a fresh launch per test, so the suite takes about 80 seconds. 1G's `-uiTesting` launch argument removes the delay.
+- The `waitFor(_:toRead:)` helper is duplicated in two UI test files. Share it in 1G.
+- UI tests run with the 300 ms artificial delay and a fresh launch per test, so the suite takes about two and a half minutes. 1G's `-uiTesting` launch argument removes the delay.
 - `xcodebuild` prints `appintentsmetadataprocessor ... Metadata extraction skipped` warnings. They come from an Xcode build tool, not the Swift compiler, and need no action.
 
 ## Open questions
 
-- 1B through 1E were each branched from the previous phase branch because the earlier pull requests were not merged yet. Merge them in order, or merge the latest alone, which contains the earlier ones.
+- 1B through 1F were each branched from the previous phase branch because the earlier pull requests were not merged yet. Merge them in order, or merge the latest alone, which contains the earlier ones.
 - The plan's 1A says "first commit pushed to `main`", while `CLAUDE.md` says one branch per phase. Resolved as: the pre-existing docs were committed straight to `main`, and the 1A work is on `phase/1a-scaffold` for a pull request.
 
 ## Session log
 
 Newest first, one line per session: `YYYY-MM-DD · phase · what was done · next step`.
 
+- 2026-10-07 · 1F · `PostRequestViewModel`, `PostRequestView`, `ActivityViewModel`, `ActivityView`, `ActivityRow`, `ActivitySegment`, post-then-highlight navigation; 56 Features tests and Flow 1 UI tests; `swift test` and `xcodebuild test` pass · start 1G on `phase/1g-hardening`
 - 2026-10-07 · 1E · `NearbyViewModel`, `NearbyView`, `RequestRow`, `RadiusOption`, `RequestDetailViewModel`, `RequestDetailView`, shared display helpers; 38 Features tests and Flow 2 UI tests; `swift test` and `xcodebuild test` pass · start 1F on `phase/1f-post-activity`
 - 2026-10-07 · 1D · `AppEnvironment` with preview stubs and environment value, `AppEnvironment.demo()` in the App target, four tabs each in a `NavigationStack`, working Dev Settings, `DevSettingsUITests`; `swift test` and `xcodebuild test` pass · start 1E on `phase/1e-nearby-detail`
 - 2026-10-07 · 1C · Seed fixtures (`LocationPresets`, `DemoUsers`, `DemoRequests`), `MockRequestRepository`, `MockLocationProvider`, `MockLocationSettings`, `MockSessionStore` with 40 tests; `swift test` and `xcodebuild test` pass · start 1D on `phase/1d-app-shell`
