@@ -25,3 +25,4 @@ line_length:
 identifier_name:
   excluded:
     - id
+    - to
