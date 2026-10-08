@@ -47,7 +47,7 @@ final class DemoFlowUITests: UITestCase {
         app.buttons["post.submit"].tap()
 
         let postedRow = row("activity.row.", containing: "Need a cup of rice")
-        XCTAssertTrue(postedRow.waitForExistence(timeout: 5))
+        XCTAssertTrue(postedRow.waitForExistence(timeout: Self.waitTimeout))
         XCTAssertTrue(app.tabBars.buttons["My Activity"].isSelected)
         XCTAssertEqual(postedRow.label, "Need a cup of rice, Ingredient, Open, new")
     }
@@ -74,7 +74,7 @@ final class DemoFlowUITests: UITestCase {
         openTab("My Activity")
         app.segmentedControls["activity.segment"].buttons["Picked up by me"].tap()
         let pickedUpRow = row("activity.row.", containing: "Need a cup of rice")
-        XCTAssertTrue(pickedUpRow.waitForExistence(timeout: 5))
+        XCTAssertTrue(pickedUpRow.waitForExistence(timeout: Self.waitTimeout))
         XCTAssertTrue(pickedUpRow.label.hasSuffix("Claimed by Bea, Posted by Alex"))
     }
 
@@ -85,7 +85,7 @@ final class DemoFlowUITests: UITestCase {
         openTab("My Activity")
         app.segmentedControls["activity.segment"].buttons["My requests"].tap()
         let claimedRow = row("activity.row.", containing: "Claimed by Bea")
-        XCTAssertTrue(claimedRow.waitForExistence(timeout: 5))
+        XCTAssertTrue(claimedRow.waitForExistence(timeout: Self.waitTimeout))
         claimedRow.tap()
         waitFor(element("detail.status"), toRead: "Claimed by Bea")
         app.buttons["detail.complete"].tap()

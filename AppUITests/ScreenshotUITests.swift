@@ -20,7 +20,8 @@ final class ScreenshotUITests: UITestCase {
         app.buttons["Ingredient"].tap()
         try capture("post", into: folder)
         scrollToAndTap(app.buttons["post.submit"])
-        XCTAssertTrue(row("activity.row.", containing: "Need a cup of rice").waitForExistence(timeout: 5))
+        XCTAssertTrue(row("activity.row.", containing: "Need a cup of rice")
+            .waitForExistence(timeout: Self.waitTimeout))
 
         switchUser(to: "user-bea")
         try capture("dev-settings", into: folder)
@@ -28,12 +29,12 @@ final class ScreenshotUITests: UITestCase {
         row("nearby.row.", containing: "Need a cup of rice").tap()
         scrollToAndTap(app.buttons["detail.pickUp"])
         app.buttons["Confirm pick up"].tap()
-        XCTAssertTrue(app.buttons["detail.complete"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.buttons["detail.complete"].waitForExistence(timeout: Self.waitTimeout))
         try capture("request-detail", into: folder)
 
         switchUser(to: "user-alex")
         openTab("My Activity")
-        XCTAssertTrue(row("activity.row.", containing: "Claimed by Bea").waitForExistence(timeout: 5))
+        XCTAssertTrue(row("activity.row.", containing: "Claimed by Bea").waitForExistence(timeout: Self.waitTimeout))
         try capture("my-activity", into: folder)
     }
 

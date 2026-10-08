@@ -2,6 +2,9 @@ import XCTest
 
 /// Shared launch and lookup helpers. Each test launches the app fresh with no mock delay.
 class UITestCase: XCTestCase {
+    /// Generous, because hosted CI machines are several times slower than a laptop.
+    static let waitTimeout: TimeInterval = 20
+
     @MainActor lazy var app = XCUIApplication()
 
     override func setUp() {
@@ -47,13 +50,18 @@ class UITestCase: XCTestCase {
         element.tap()
     }
 
-    /// Waits until the element's label or value is `text`.
+    /// Waits until an element with the same identifier reads `text` as its label or value.
+    /// A SwiftUI `Label` can expose its icon and its text under one identifier, so every match is considered.
     @MainActor
     func waitFor(_ element: XCUIElement, toRead text: String, file: StaticString = #filePath, line: UInt = #line) {
-        let matches = NSPredicate(format: "exists == true AND (label == %@ OR value == %@)", text, text)
-        let expectation = XCTNSPredicateExpectation(predicate: matches, object: element)
-        let result = XCTWaiter().wait(for: [expectation], timeout: 5)
-        let found = element.exists ? "\(element.label) / \(String(describing: element.value))" : "nothing"
-        XCTAssertEqual(result, .completed, "Expected \"\(text)\", found \(found)", file: file, line: line)
+        guard element.waitForExistence(timeout: Self.waitTimeout) else {
+            return XCTFail("Expected \"\(text)\", found nothing", file: file, line: line)
+        }
+        let matches = NSPredicate(
+            format: "identifier == %@ AND (label == %@ OR value == %@)", element.identifier, text, text
+        )
+        let reading = app.descendants(matching: .any).matching(matches).firstMatch
+        let found = reading.waitForExistence(timeout: Self.waitTimeout)
+        XCTAssertTrue(found, "Expected \"\(text)\", found \"\(element.label)\"", file: file, line: line)
     }
 }

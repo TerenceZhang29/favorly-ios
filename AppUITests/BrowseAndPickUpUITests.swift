@@ -38,7 +38,8 @@ final class BrowseAndPickUpUITests: UITestCase {
 
         openTab("My Activity")
         app.segmentedControls["activity.segment"].buttons["Picked up by me"].tap()
-        XCTAssertTrue(row("activity.row.", containing: "Need 2 eggs for a cake").waitForExistence(timeout: 5))
+        XCTAssertTrue(row("activity.row.", containing: "Need 2 eggs for a cake")
+            .waitForExistence(timeout: Self.waitTimeout))
     }
 
     @MainActor
@@ -47,7 +48,7 @@ final class BrowseAndPickUpUITests: UITestCase {
         switchUser(to: "user-bea")
         openTab("Nearby")
 
-        XCTAssertTrue(app.buttons[riceRow].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.buttons[riceRow].waitForExistence(timeout: Self.waitTimeout))
         app.buttons[riceRow].tap()
         waitFor(element("detail.requester"), toRead: "Bea (you)")
         XCTAssertFalse(app.buttons["detail.pickUp"].exists)
