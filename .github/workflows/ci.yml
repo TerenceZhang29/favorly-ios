@@ -1,0 +1,60 @@
+name: CI
+
+on:
+  push:
+    branches: [main, "phase/**", "ci/**"]
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  package-tests:
+    name: Package tests (swift test)
+    runs-on: macos-26
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v5
+      - name: Show toolchain
+        run: |
+          ls /Applications | grep -i xcode
+          xcodebuild -version
+          swift --version
+      - name: Run package tests
+        run: swift test --package-path Packages/FavorlyKit
+
+  app-tests:
+    name: App and UI tests (xcodebuild test)
+    runs-on: macos-26
+    # A failed UI test can leave xcodebuild collecting diagnostics for a long time.
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v5
+      - name: Generate the Xcode project
+        run: |
+          brew install xcodegen
+          xcodegen generate
+      - name: Pick an iPhone simulator
+        run: |
+          xcrun simctl list devices available
+          udid=$(xcrun simctl list devices available -j | jq -r '
+            .devices | to_entries
+            | map(select(.key | contains("iOS")))
+            | map(.value |= map(select(.name | startswith("iPhone"))))
+            | map(select(.value | length > 0))
+            | sort_by(.key) | last | .value[0].udid')
+          test -n "$udid" && test "$udid" != "null"
+          echo "SIMULATOR_UDID=$udid" >> "$GITHUB_ENV"
+      - name: Build and run all tests
+        run: |
+          set -o pipefail
+          xcodebuild test -project Favorly.xcodeproj -scheme Favorly \
+            -destination "platform=iOS Simulator,id=$SIMULATOR_UDID" \
+            -resultBundlePath TestResults.xcresult | tail -n 400
+      - name: Upload test results
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: TestResults
+          path: TestResults.xcresult
