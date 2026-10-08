@@ -5,27 +5,31 @@ struct RequestRow: View {
     let item: NearbyRequest
     let requesterName: String
     let isOwn: Bool
-    @ScaledMetric private var iconWidth = 28.0
 
     var body: some View {
-        HStack(spacing: 12) {
-            Image(systemName: item.request.category.systemImage)
-                .frame(width: iconWidth)
-            VStack(alignment: .leading, spacing: 2) {
+        HStack(spacing: Theme.Spacing.large) {
+            CategoryIcon(systemImage: item.request.category.systemImage, color: item.request.category.color)
+            VStack(alignment: .leading, spacing: Theme.Spacing.small) {
                 Text(item.request.title)
-                Text("\(DistanceFormatter.miles(item.distanceMeters)) · \(requesterName) · \(postedText)")
+                    .fontWeight(.semibold)
+                Text("\(distanceText) · \(requesterName) · \(postedText)")
                     .font(.footnote)
                     .foregroundStyle(.secondary)
             }
-            Spacer()
+            Spacer(minLength: Theme.Spacing.medium)
             if isOwn {
-                Text("Yours")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
+                TagBadge(text: "Yours")
             }
         }
+        .padding(.vertical, Theme.Spacing.small)
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(spokenLabel)
+    }
+
+    private var distanceText: Text {
+        Text(DistanceFormatter.miles(item.distanceMeters))
+            .fontWeight(.medium)
+            .foregroundStyle(Theme.Colors.brand)
     }
 
     private var postedText: String {
