@@ -16,16 +16,16 @@ struct PostRequestView: View {
                 TextField("Title", text: $viewModel.title)
                     .accessibilityIdentifier("post.title")
                 if let titleMessage = viewModel.titleMessage {
-                    validationText(titleMessage, id: "post.titleMessage")
+                    InlineMessage(text: titleMessage, identifier: "post.titleMessage")
                 }
                 TextField("Details (optional)", text: $viewModel.details, axis: .vertical)
                     .lineLimit(3 ... 6)
                     .accessibilityIdentifier("post.details")
                 if let detailsMessage = viewModel.detailsMessage {
-                    validationText(detailsMessage, id: "post.detailsMessage")
+                    InlineMessage(text: detailsMessage, identifier: "post.detailsMessage")
                 }
             } header: {
-                Text("What do you need?")
+                SectionHeader(text: "What do you need?")
             }
 
             Section {
@@ -37,14 +37,20 @@ struct PostRequestView: View {
                 .accessibilityIdentifier("post.category")
             }
 
-            Section("Location") {
+            Section {
                 location
+            } header: {
+                SectionHeader(text: "Location")
+            }
+
+            if let submitError = viewModel.submitError {
+                Section {
+                    InlineMessage(text: submitError, identifier: "post.submitError")
+                }
+                .compactSectionSpacing()
             }
 
             Section {
-                if let submitError = viewModel.submitError {
-                    validationText(submitError, id: "post.submitError")
-                }
                 Button("Post request") {
                     Task {
                         if let request = await viewModel.submit() {
@@ -52,8 +58,10 @@ struct PostRequestView: View {
                         }
                     }
                 }
+                .buttonStyle(PrimaryButtonStyle())
                 .disabled(!viewModel.canSubmit)
                 .accessibilityIdentifier("post.submit")
+                .plainListRow()
             }
         }
         .navigationTitle("Post")
@@ -67,23 +75,20 @@ struct PostRequestView: View {
             ProgressView()
                 .accessibilityIdentifier("post.locationLoading")
         case .tagged:
-            Label(viewModel.locationText ?? "", systemImage: "mappin.and.ellipse")
-                .accessibilityIdentifier("post.location")
+            Label {
+                Text(viewModel.locationText ?? "")
+            } icon: {
+                Image(systemName: "mappin.and.ellipse")
+                    .foregroundStyle(Theme.Colors.brand)
+            }
+            .accessibilityIdentifier("post.location")
         case let .failed(message):
-            Text(message)
-                .accessibilityIdentifier("post.locationError")
+            InlineMessage(text: message, identifier: "post.locationError")
             Button("Retry") {
                 Task { await viewModel.loadLocation() }
             }
             .accessibilityIdentifier("post.locationRetry")
         }
-    }
-
-    private func validationText(_ message: String, id: String) -> some View {
-        Text(message)
-            .font(.footnote)
-            .foregroundStyle(.red)
-            .accessibilityIdentifier(id)
     }
 }
 
