@@ -46,29 +46,37 @@ struct ActivityView: View {
     @ViewBuilder
     private var results: some View {
         if case let .failed(message) = viewModel.state {
-            Text(message)
-                .accessibilityIdentifier("activity.error")
-            Button("Retry") {
+            MessageView(
+                systemImage: "exclamationmark.triangle",
+                message: message,
+                messageIdentifier: "activity.error",
+                retryIdentifier: "activity.retry"
+            ) {
                 Task { await viewModel.load() }
             }
-            .accessibilityIdentifier("activity.retry")
+            .plainListRow()
         } else if let items = viewModel.items {
             if items.isEmpty {
-                Text(viewModel.segment.emptyMessage)
-                    .foregroundStyle(.secondary)
-                    .accessibilityIdentifier("activity.empty")
+                MessageView(
+                    systemImage: viewModel.segment == .posted ? "square.and.pencil" : "hand.thumbsup",
+                    message: viewModel.segment.emptyMessage,
+                    messageIdentifier: "activity.empty"
+                )
+                .plainListRow()
             }
             ForEach(items) { request in
                 let isNew = request.id == highlightedRequestID
                 NavigationLink(value: request.id) {
                     ActivityRow(request: request, subtitle: viewModel.subtitle(for: request), isNew: isNew)
                 }
-                .listRowBackground(isNew ? Color.accentColor.opacity(0.12) : nil)
+                .listRowBackground(isNew ? HighlightedRowBackground() : nil)
                 .accessibilityIdentifier("activity.row.\(request.id.rawValue.uuidString)")
             }
         } else {
             ProgressView()
                 .frame(maxWidth: .infinity)
+                .padding(.vertical, Theme.Spacing.section)
+                .plainListRow()
                 .accessibilityIdentifier("activity.loading")
         }
     }
