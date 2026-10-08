@@ -10,7 +10,8 @@ struct SecondaryButtonStyle: ButtonStyle {
             .font(.body.weight(.semibold))
             .foregroundStyle(color)
             .multilineTextAlignment(.center)
-            .padding(Theme.Spacing.large)
+            .padding(.vertical, Theme.Spacing.xLarge)
+            .padding(.horizontal, Theme.Spacing.large)
             .frame(maxWidth: .infinity)
             .background(
                 color.opacity(Theme.tintOpacity),
