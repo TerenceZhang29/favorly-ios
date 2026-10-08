@@ -84,4 +84,4 @@ TEST_RUNNER_SCREENSHOT_DIR=/tmp/favorly-shots xcodebuild test \
   -only-testing:FavorlyUITests/ScreenshotUITests
 ```
 
-Copy the images you want into `docs/screenshots/`.
+It writes `<screen>-light.png` and `<screen>-dark.png` for each of the five screens and the Nearby empty state. Copy the images you want into `docs/screenshots/`. The Phase 1 look is kept in `docs/screenshots/phase-1/`.

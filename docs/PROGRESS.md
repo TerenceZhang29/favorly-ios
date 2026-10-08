@@ -2,8 +2,8 @@
 
 Updated by every coding session. Read this after `docs/PLAN.md` and `docs/PLAN-PHASE-2.md`, and continue from the first unchecked item.
 
-**Current phase:** Phase 2 (UI refresh) planned, not started. Phase 1 is complete (`v0.1.0-prototype`)
-**Next task:** Start 2A on `phase/2a-theme`, following `docs/PLAN-PHASE-2.md`. Still open from Phase 1: run the demo script in the README by hand once
+**Current phase:** Phase 2 (UI refresh). 2A is done; 2B is next. Phase 1 is complete (`v0.1.0-prototype`)
+**Next task:** Start 2B on `phase/2b-nearby-detail`, following `docs/PLAN-PHASE-2.md`. It ends at the review gate. Still open from Phase 1: run the demo script in the README by hand once
 
 ## Phase checklist
 
@@ -17,7 +17,7 @@ Updated by every coding session. Read this after `docs/PLAN.md` and `docs/PLAN-P
 
 Phase 2, UI refresh ([PLAN-PHASE-2.md](PLAN-PHASE-2.md)):
 
-- [ ] **2A.** Theme and shared components, "before" screenshots
+- [x] **2A.** Theme and shared components, "before" screenshots
 - [ ] **2B.** Nearby and Request Detail, then the review gate
 - [ ] **2C.** Post, My Activity and Dev Settings
 - [ ] **2D.** Polish, app icon, docs, tag `v0.2.0-ui`
@@ -71,6 +71,11 @@ One row per commit, oldest first, grouped by phase. Every session adds its commi
 | Phase 2 plan | `300c7ff` | docs: add Phase 2 UI refresh plan |
 | CI | `46d326a` | ci: run package tests and app UI tests on GitHub Actions |
 | CI | `e0258b7` | test(ui): longer waits and identifier-wide matching for slower CI simulators |
+| CI | `06cd622` | docs: record CI setup in progress log and README |
+| 2A | `fdbf4a2` | test(ui): capture every screen in light and dark, save the Phase 1 look |
+| 2A | `7897137` | feat(theme): color palette with contrast math, spacing, radii and color mappings |
+| 2A | `399751a` | feat(theme): shared components with light and dark previews, optional symbol on FactRow |
+| 2A | `495fb90` | feat(app): brand tint on the root view and accent color asset |
 
 ## Confirmed decisions
 
@@ -151,12 +156,24 @@ Add entries as `YYYY-MM-DD · phase · decision · reason`.
 - 2026-10-08 · CI · CI runs on `macos-26` with its default Xcode (26.6, iOS 26.5 simulator), while local development uses Xcode 27 and iOS 27 · the `xcode-27` runner label is still in public preview; the code builds and passes on both, so CI also guards against relying on the newest SDK
 - 2026-10-08 · CI · The workflow picks the first iPhone on the newest installed iOS runtime, not a named device · simulator names differ between runner images
 - 2026-10-08 · CI · UI test waits went from 5 s to a shared 20 s (`UITestCase.waitTimeout`), and `waitFor` now accepts any element with the identifier · the hosted runner is several times slower, and on iOS 26.5 a `Label`'s icon and text share one identifier, so the first match was the icon. No assertion changed
+- 2026-10-08 · 2A · `ScreenshotUITests` has one test per appearance and writes `<screen>-light.png` and `<screen>-dark.png` for the five screens and the Nearby empty state; it switches appearance with `XCUIDevice.shared.appearance` and sets it back to light afterwards · no app code is needed to force a color scheme
+- 2026-10-08 · 2A · The "before" set is in `docs/screenshots/phase-1/` (12 images, iPhone 17, iOS 27.0); the three README images in `docs/screenshots/` are untouched until 2D · take the Phase 2 screenshots on the same simulator so they compare side by side
+- 2026-10-08 · 2A · Added `Theme.Colors.onBrand` (white in light mode, black in dark mode) for the primary button label · the component table says "white label", but the 2A test list asks for black on the dark brand color, and white on `#4FD1C5` would not be readable
+- 2026-10-08 · 2A · Added `Theme.IconSize` (`row` 36, `large` 56), `Theme.pressedOpacity` (0.7) and `Theme.disabledOpacity` (0.4), and `Theme.Colors.palette` listing the nine tokens · components need these numbers and no literal should live outside `Theme`; the contrast test loops over `palette`
+- 2026-10-08 · 2A · `RGBColor` has `blended(over:opacity:)`, and `AdaptiveColor` has `rgb(for:)` · the contrast test needs the color of a 14% tint on a background, without SwiftUI
+- 2026-10-08 · 2A · `StatusBadge` and `TagBadge` are rounded rectangles with `Theme.Radius.badge`, not true capsules · the plan says "capsule" but also defines a badge radius of 6; a rounded rectangle still looks right when "Claimed by Bea" wraps at accessibility text sizes. Change at the review gate if a pill is preferred
+- 2026-10-08 · 2A · `MessageView` takes the accessibility identifiers for its message and Retry button as parameters, and Retry uses the system `.bordered` style · `nearby.empty`, `nearby.error` and `nearby.retry` must stay on the same kind of element
+- 2026-10-08 · 2A · Fact symbols in `FactRow` are gray, not brand colored · the brand color marks what the user can act on, and facts are not tappable
+- 2026-10-08 · 2A · Shared components live in `Shared/Components/`, with a `LightAndDarkPreview` helper that shows preview content in both modes · keeps each component's `#Preview` to one block
+- 2026-10-08 · 2A · Tests that import SwiftUI refer to `FavorlyFeatures.RGBColor` through a type alias · macOS has an old system type also named `RGBColor`
 - 2026-10-07 · 1A · Tab bar buttons are found by label in UI tests (`app.tabBars.buttons["Nearby"]`) · SwiftUI does not reliably pass a tab item's `accessibilityIdentifier` to the tab bar button
 
 ## Known issues
 
 - Not yet checked by a person: the demo script has only been run by `DemoFlowUITests`, and VoiceOver labels were set in code and read back through UI tests, not listened to with VoiceOver on.
 - The segmented radius and activity pickers do not grow with Dynamic Type. That is how the system control behaves; everything else was checked at the `accessibility-large` text size.
+- The components are not on any screen yet. They were checked once by rendering them to an image in light and dark; their real test is 2B.
+- If dark-mode screenshots come out light, the simulator is stuck: `xcrun simctl shutdown` and `boot` it. This happened once on the iPhone 17 simulator, where even Settings stayed light.
 - CI does not run SwiftLint or SwiftFormat; run them locally before pushing.
 - A CI run takes about 12 minutes, nearly all of it the UI tests on the hosted simulator.
 - The UI test suite takes a little over three minutes, mostly app launches and typing.
@@ -173,6 +190,7 @@ Add entries as `YYYY-MM-DD · phase · decision · reason`.
 
 Newest first, one line per session: `YYYY-MM-DD · phase · what was done · next step`.
 
+- 2026-10-08 · 2A · "Before" screenshots (12, light and dark), `RGBColor`, `AdaptiveColor`, `Theme`, category and status colors, six shared components plus the optional `FactRow` symbol, brand tint and accent color; 137 package tests (12 new) and all UI tests pass unedited; Core, Data and view model diff is empty · start 2B on `phase/2b-nearby-detail`
 - 2026-10-08 · CI · GitHub Actions workflow added and green on its second run (run 37726152972); first run exposed four UI test waits that were too tight for the runner · start 2A on `phase/2a-theme`
 - 2026-10-07 · Phase 2 plan · Wrote `docs/PLAN-PHASE-2.md` (UI refresh in four phases, 2A–2D), added the Phase 2 checklist here, updated `CLAUDE.md` and the README to point at it; no code changed · start 2A on `phase/2a-theme`
 - 2026-10-07 · post-1G · Added the commit map to this file and fast-forwarded `main` to the Phase 1 work, with no pull requests · run the demo by hand
