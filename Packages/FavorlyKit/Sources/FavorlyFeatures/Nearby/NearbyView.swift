@@ -38,10 +38,7 @@ struct NearbyView: View {
                 results
             } header: {
                 if let countText = viewModel.countText {
-                    Text(countText)
-                        .font(.subheadline.weight(.semibold))
-                        .foregroundStyle(Color.primary)
-                        .textCase(nil)
+                    SectionHeader(text: countText)
                         .accessibilityIdentifier("nearby.count")
                 }
             }

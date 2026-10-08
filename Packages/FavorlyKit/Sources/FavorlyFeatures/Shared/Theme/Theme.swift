@@ -47,6 +47,8 @@ enum Theme {
 
     /// Opacity of the soft background behind a colored element.
     static let tintOpacity = 0.14
+    /// Opacity of the brand color behind a highlighted list row. Lower than `tintOpacity` so badges stay readable.
+    static let highlightOpacity = 0.08
     static let pressedOpacity = 0.7
     static let disabledOpacity = 0.4
 }

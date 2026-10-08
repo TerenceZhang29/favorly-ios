@@ -20,6 +20,8 @@ struct SelectableRow: View {
             Spacer()
             if isSelected {
                 Image(systemName: "checkmark")
+                    .fontWeight(.semibold)
+                    .foregroundStyle(Theme.Colors.brand)
                     .accessibilityHidden(true)
             }
         }

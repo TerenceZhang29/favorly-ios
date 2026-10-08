@@ -26,6 +26,18 @@ struct ThemeTests {
         }
     }
 
+    /// A just-posted request is highlighted with a light brand tint over the plain background (white in light
+    /// mode, black in dark mode), and its badges sit on top of that.
+    @Test(arguments: Theme.Colors.palette, [ColorScheme.light, .dark])
+    func everyPaletteColorIsReadableOnAHighlightedRow(color: AdaptiveColor, colorScheme: ColorScheme) {
+        let background = RGBColor(hex: colorScheme == .dark ? 0x000000 : 0xFFFFFF)
+        let highlight = Theme.Colors.brand.rgb(for: colorScheme)
+            .blended(over: background, opacity: Theme.highlightOpacity)
+        let foreground = color.rgb(for: colorScheme)
+        let tint = foreground.blended(over: highlight, opacity: Theme.tintOpacity)
+        #expect(foreground.contrastRatio(with: tint) >= minimumContrast)
+    }
+
     @Test(arguments: [ColorScheme.light, .dark])
     func primaryButtonLabelIsReadableOnTheBrandColor(colorScheme: ColorScheme) {
         let label = Theme.Colors.onBrand.rgb(for: colorScheme)
