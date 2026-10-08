@@ -12,6 +12,7 @@ struct DevSettingsView: View {
                     .accessibilityIdentifier("devSettings.summary")
             } footer: {
                 Text("Prototype only. Nothing here ships to real users.")
+                    .foregroundStyle(.secondary)
             }
 
             Section("Current user") {
@@ -53,8 +54,10 @@ struct DevSettingsView: View {
                         isResetting = false
                     }
                 }
+                .buttonStyle(SecondaryButtonStyle(color: Theme.Colors.statusCancelled))
                 .disabled(isResetting)
                 .accessibilityIdentifier("devSettings.resetDemoData")
+                .plainListRow()
             }
         }
         .navigationTitle("Dev Settings")
