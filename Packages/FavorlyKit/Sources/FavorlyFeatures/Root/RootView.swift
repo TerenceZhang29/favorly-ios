@@ -22,6 +22,7 @@ public struct RootView: View {
                 .accessibilityIdentifier("root.tab.\(tab.rawValue)")
             }
         }
+        .tint(Theme.Colors.brand)
         .onChange(of: selection) { previous, _ in
             if previous == .activity {
                 newlyPostedID = nil
