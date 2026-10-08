@@ -198,7 +198,7 @@ Add entries as `YYYY-MM-DD · phase · decision · reason`.
 
 ## Open questions
 
-- Review gate after 2B, not yet held: does the team approve the Nearby and Request Detail look (teal brand, rounded-rectangle badges, pill-shaped action buttons)? 2C must not start until the answer is recorded here.
+- Review gate after 2B. Resolved 2026-10-08: the repo owner looked at the Nearby and Request Detail screenshots and approved them as they are (teal brand, rounded-rectangle badges, pill-shaped action buttons). No palette or component changes were requested.
 - Phase 2: is teal the right brand color, and who approves the look at the review gate after 2B? Defaults: teal, and the repo owner.
 - 1B through 1G were each branched from the previous phase branch because the earlier pull requests were not merged yet. Resolved: no pull requests; `main` was fast-forwarded to the last phase branch, which contains the earlier ones.
 - The plan's 1A says "first commit pushed to `main`", while `CLAUDE.md` says one branch per phase. Resolved as: the pre-existing docs were committed straight to `main`, and the 1A work is on `phase/1a-scaffold` for a pull request.
