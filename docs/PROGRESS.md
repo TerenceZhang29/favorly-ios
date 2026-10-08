@@ -1,9 +1,9 @@
 # Progress
 
-Updated by every coding session. Read this after `docs/PLAN.md` and continue from the first unchecked item.
+Updated by every coding session. Read this after `docs/PLAN.md` and `docs/PLAN-PHASE-2.md`, and continue from the first unchecked item.
 
-**Current phase:** Phase 1 complete (`v0.1.0-prototype`)
-**Next task:** Run the demo script in the README by hand once. Phase 2 has no plan yet; see "What later phases will plug in" in `docs/PLAN.md`
+**Current phase:** Phase 2 (UI refresh) planned, not started. Phase 1 is complete (`v0.1.0-prototype`)
+**Next task:** Start 2A on `phase/2a-theme`, following `docs/PLAN-PHASE-2.md`. Still open from Phase 1: run the demo script in the README by hand once
 
 ## Phase checklist
 
@@ -14,6 +14,13 @@ Updated by every coding session. Read this after `docs/PLAN.md` and continue fro
 - [x] **1E.** Browse nearby + request detail + pick up (Flow 2)
 - [x] **1F.** Post request + My Activity (Flow 1)
 - [x] **1G.** Hardening, UI test, docs, tag `v0.1.0-prototype`
+
+Phase 2, UI refresh ([PLAN-PHASE-2.md](PLAN-PHASE-2.md)):
+
+- [ ] **2A.** Theme and shared components, "before" screenshots
+- [ ] **2B.** Nearby and Request Detail, then the review gate
+- [ ] **2C.** Post, My Activity and Dev Settings
+- [ ] **2D.** Polish, app icon, docs, tag `v0.2.0-ui`
 
 ## Commit map
 
@@ -60,6 +67,7 @@ One row per commit, oldest first, grouped by phase. Every session adds its commi
 | 1G | `96c6d8b` | test(ui): demo script test, shared UI test base and screenshot capture |
 | 1G | `627b80f` | docs: README with demo script and screenshots, expand architecture notes |
 | 1G | `3333580` | docs: record phase 1G progress and close out phase 1 (tag `v0.1.0-prototype`) |
+| Post-1G | `4adfb3c` | docs: add commit map to progress log and record merge to main |
 
 ## Confirmed decisions
 
@@ -131,6 +139,11 @@ Add entries as `YYYY-MM-DD · phase · decision · reason`.
 - 2026-10-07 · 1G · Tag `v0.1.0-prototype` points at the tip of `phase/1g-hardening`, because the phase pull requests were not merged yet · if the pull requests are squash-merged, move the tag to the resulting commit on `main`
 - 2026-10-07 · post-1G · No pull requests: `main` was fast-forwarded to `phase/1g-hardening`, keeping every commit · the owner decided no review step is needed; the tag `v0.1.0-prototype` stays valid because no commit was rewritten
 - 2026-10-07 · post-1G · Added the "Commit map" section, one row per commit · the owner wants the progress file and the commit history to match, so changes are easy to trace and revert
+- 2026-10-07 · Phase 2 plan · The Phase 2 plan is its own file, `docs/PLAN-PHASE-2.md`; `docs/PLAN.md` stays the source of truth for architecture and behavior · the Phase 1 plan is a finished record, and Phase 2 changes looks only
+- 2026-10-07 · Phase 2 plan · Phase 2 keeps one branch per phase but has no pull requests: fast-forward `main` at the end of each phase, then delete the branch · follows the owner's decision for Phase 1
+- 2026-10-07 · Phase 2 plan · "Functionality unchanged" is defined as: no edits to Core, Data, view models, identifiers, visible strings, control types, or the four behavior UI test classes · gives each phase something concrete to check
+- 2026-10-07 · Phase 2 plan · Theme colors are light and dark hex pairs in code, not an asset catalog in the package or system colors · they can be unit tested for contrast, and `swift test` on macOS does not compile asset catalogs
+- 2026-10-07 · Phase 2 plan · Brand color defaults to teal (`#0A6B67` light, `#4FD1C5` dark); the owner has not confirmed it · it can be changed in one place before or at the 2B review gate
 - 2026-10-07 · 1A · Tab bar buttons are found by label in UI tests (`app.tabBars.buttons["Nearby"]`) · SwiftUI does not reliably pass a tab item's `accessibilityIdentifier` to the tab bar button
 
 ## Known issues
@@ -144,6 +157,7 @@ Add entries as `YYYY-MM-DD · phase · decision · reason`.
 
 ## Open questions
 
+- Phase 2: is teal the right brand color, and who approves the look at the review gate after 2B? Defaults: teal, and the repo owner.
 - 1B through 1G were each branched from the previous phase branch because the earlier pull requests were not merged yet. Resolved: no pull requests; `main` was fast-forwarded to the last phase branch, which contains the earlier ones.
 - The plan's 1A says "first commit pushed to `main`", while `CLAUDE.md` says one branch per phase. Resolved as: the pre-existing docs were committed straight to `main`, and the 1A work is on `phase/1a-scaffold` for a pull request.
 
@@ -151,6 +165,7 @@ Add entries as `YYYY-MM-DD · phase · decision · reason`.
 
 Newest first, one line per session: `YYYY-MM-DD · phase · what was done · next step`.
 
+- 2026-10-07 · Phase 2 plan · Wrote `docs/PLAN-PHASE-2.md` (UI refresh in four phases, 2A–2D), added the Phase 2 checklist here, updated `CLAUDE.md` and the README to point at it; no code changed · start 2A on `phase/2a-theme`
 - 2026-10-07 · post-1G · Added the commit map to this file and fast-forwarded `main` to the Phase 1 work, with no pull requests · run the demo by hand
 - 2026-10-07 · 1G · `-uiTesting` flag, `DemoFlowUITests`, accessibility pass, README with demo script and screenshots, architecture notes; a fresh clone generates, lints and passes `swift test` and `xcodebuild test`; tagged `v0.1.0-prototype` · merge the pull requests, run the demo by hand
 - 2026-10-07 · 1F · `PostRequestViewModel`, `PostRequestView`, `ActivityViewModel`, `ActivityView`, `ActivityRow`, `ActivitySegment`, post-then-highlight navigation; 56 Features tests and Flow 1 UI tests; `swift test` and `xcodebuild test` pass · start 1G on `phase/1g-hardening`

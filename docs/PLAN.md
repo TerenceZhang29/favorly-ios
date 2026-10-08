@@ -2,6 +2,8 @@
 
 Oct 7, 2026 · Team 402
 
+Phase 1 is complete. The next phase, a UI refresh, is planned in [PLAN-PHASE-2.md](PLAN-PHASE-2.md).
+
 ## Overview
 
 Phase 1 delivers a SwiftUI prototype that runs in the iOS Simulator on a Mac and demonstrates two flows end to end, using fake data and a fake location. Visuals stay minimal; the investment goes into a clean, modular codebase that later phases can extend with a real backend and real GPS without rewrites.
