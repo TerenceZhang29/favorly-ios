@@ -68,6 +68,9 @@ One row per commit, oldest first, grouped by phase. Every session adds its commi
 | 1G | `627b80f` | docs: README with demo script and screenshots, expand architecture notes |
 | 1G | `3333580` | docs: record phase 1G progress and close out phase 1 (tag `v0.1.0-prototype`) |
 | Post-1G | `4adfb3c` | docs: add commit map to progress log and record merge to main |
+| Phase 2 plan | `300c7ff` | docs: add Phase 2 UI refresh plan |
+| CI | `46d326a` | ci: run package tests and app UI tests on GitHub Actions |
+| CI | `e0258b7` | test(ui): longer waits and identifier-wide matching for slower CI simulators |
 
 ## Confirmed decisions
 
@@ -144,13 +147,18 @@ Add entries as `YYYY-MM-DD · phase · decision · reason`.
 - 2026-10-07 · Phase 2 plan · "Functionality unchanged" is defined as: no edits to Core, Data, view models, identifiers, visible strings, control types, or the four behavior UI test classes · gives each phase something concrete to check
 - 2026-10-07 · Phase 2 plan · Theme colors are light and dark hex pairs in code, not an asset catalog in the package or system colors · they can be unit tested for contrast, and `swift test` on macOS does not compile asset catalogs
 - 2026-10-07 · Phase 2 plan · Brand color defaults to teal (`#0A6B67` light, `#4FD1C5` dark); the owner has not confirmed it · it can be changed in one place before or at the 2B review gate
+- 2026-10-08 · CI · Added `.github/workflows/ci.yml`: `swift test` and the full `xcodebuild test` on every push to `main`, `phase/**` and `ci/**` · the owner asked for the full test run; the repo is public, so standard macOS runners are free
+- 2026-10-08 · CI · CI runs on `macos-26` with its default Xcode (26.6, iOS 26.5 simulator), while local development uses Xcode 27 and iOS 27 · the `xcode-27` runner label is still in public preview; the code builds and passes on both, so CI also guards against relying on the newest SDK
+- 2026-10-08 · CI · The workflow picks the first iPhone on the newest installed iOS runtime, not a named device · simulator names differ between runner images
+- 2026-10-08 · CI · UI test waits went from 5 s to a shared 20 s (`UITestCase.waitTimeout`), and `waitFor` now accepts any element with the identifier · the hosted runner is several times slower, and on iOS 26.5 a `Label`'s icon and text share one identifier, so the first match was the icon. No assertion changed
 - 2026-10-07 · 1A · Tab bar buttons are found by label in UI tests (`app.tabBars.buttons["Nearby"]`) · SwiftUI does not reliably pass a tab item's `accessibilityIdentifier` to the tab bar button
 
 ## Known issues
 
 - Not yet checked by a person: the demo script has only been run by `DemoFlowUITests`, and VoiceOver labels were set in code and read back through UI tests, not listened to with VoiceOver on.
 - The segmented radius and activity pickers do not grow with Dynamic Type. That is how the system control behaves; everything else was checked at the `accessibility-large` text size.
-- The optional GitHub Actions CI from 1A is still not set up.
+- CI does not run SwiftLint or SwiftFormat; run them locally before pushing.
+- A CI run takes about 12 minutes, nearly all of it the UI tests on the hosted simulator.
 - The UI test suite takes a little over three minutes, mostly app launches and typing.
 - If a UI test fails, `xcodebuild` can sit for several minutes collecting diagnostics before it exits.
 - `xcodebuild` prints `appintentsmetadataprocessor ... Metadata extraction skipped` warnings. They come from an Xcode build tool, not the Swift compiler, and need no action.
@@ -165,6 +173,7 @@ Add entries as `YYYY-MM-DD · phase · decision · reason`.
 
 Newest first, one line per session: `YYYY-MM-DD · phase · what was done · next step`.
 
+- 2026-10-08 · CI · GitHub Actions workflow added and green on its second run (run 37726152972); first run exposed four UI test waits that were too tight for the runner · start 2A on `phase/2a-theme`
 - 2026-10-07 · Phase 2 plan · Wrote `docs/PLAN-PHASE-2.md` (UI refresh in four phases, 2A–2D), added the Phase 2 checklist here, updated `CLAUDE.md` and the README to point at it; no code changed · start 2A on `phase/2a-theme`
 - 2026-10-07 · post-1G · Added the commit map to this file and fast-forwarded `main` to the Phase 1 work, with no pull requests · run the demo by hand
 - 2026-10-07 · 1G · `-uiTesting` flag, `DemoFlowUITests`, accessibility pass, README with demo script and screenshots, architecture notes; a fresh clone generates, lints and passes `swift test` and `xcodebuild test`; tagged `v0.1.0-prototype` · merge the pull requests, run the demo by hand

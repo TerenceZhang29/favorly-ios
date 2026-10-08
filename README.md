@@ -1,5 +1,7 @@
 # Favorly iOS
 
+[![CI](https://github.com/TerenceZhang29/favorly-ios/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/TerenceZhang29/favorly-ios/actions/workflows/ci.yml)
+
 Favorly is a hyperlocal iOS app that lets neighbors post small help requests and pick them up. This repo holds the Phase 1 prototype: SwiftUI, fake data and a fake location, run in the iOS Simulator.
 
 | Nearby | Request detail | My Activity |
@@ -49,6 +51,8 @@ xcodebuild test -project Favorly.xcodeproj -scheme Favorly \
 ```
 
 The second command runs the package tests again on iOS, plus the UI tests. `DemoFlowUITests` walks through the demo script below. UI tests launch the app with `-uiTesting`, which removes the 300 ms delay the mock data layer adds to mimic a network.
+
+Every push to `main` and to `phase/**` branches runs both commands on GitHub Actions (`.github/workflows/ci.yml`).
 
 ## Lint and format
 
