@@ -3,7 +3,7 @@
 Updated by every coding session. Read this after `docs/PLAN.md` and continue from the first unchecked item.
 
 **Current phase:** Phase 1 complete (`v0.1.0-prototype`)
-**Next task:** Merge the phase pull requests into `main`, then run the demo script in the README by hand once. Phase 2 has no plan yet; see "What later phases will plug in" in `docs/PLAN.md`
+**Next task:** Run the demo script in the README by hand once. Phase 2 has no plan yet; see "What later phases will plug in" in `docs/PLAN.md`
 
 ## Phase checklist
 
@@ -14,6 +14,52 @@ Updated by every coding session. Read this after `docs/PLAN.md` and continue fro
 - [x] **1E.** Browse nearby + request detail + pick up (Flow 2)
 - [x] **1F.** Post request + My Activity (Flow 1)
 - [x] **1G.** Hardening, UI test, docs, tag `v0.1.0-prototype`
+
+## Commit map
+
+One row per commit, oldest first, grouped by phase. Every session adds its commits here before it ends, so this table and `git log` stay in step.
+
+- Each phase ends with a `docs: record phase <id> progress` commit. That commit cannot list its own hash before it exists, so the next commit to touch this file fills it in.
+- To undo a whole phase, revert its range, newest phase first: `git revert --no-commit <first>^..<last>`, then commit.
+- To undo one change, `git revert <hash>`. Later phases build on earlier ones, so expect conflicts when reverting anything but the newest work.
+
+| Phase | Commit | Change |
+| --- | --- | --- |
+| Setup | `1ef1310` | docs: add Phase 1 plan, progress log and agent instructions |
+| 1A | `d4c4f60` | chore: add gitignore, SwiftLint and SwiftFormat configs |
+| 1A | `d72f147` | feat(kit): add FavorlyKit package with Core, Data and Features targets |
+| 1A | `44ec3c0` | feat(app): add XcodeGen project, app shell with four tabs and launch UI test |
+| 1A | `7436627` | docs: add README and architecture summary, record phase 1A progress |
+| 1B | `559f328` | feat(core): add domain models, service protocols and FavorlyError |
+| 1B | `b01687f` | feat(core): request status rules |
+| 1B | `e937620` | feat(core): draft validation |
+| 1B | `17151fe` | feat(core): haversine distance and miles formatting |
+| 1B | `921d0c0` | docs: record phase 1B progress |
+| 1C | `8de8e95` | feat(data): seed users, requests and location presets |
+| 1C | `cd8e865` | feat(data): in-memory request repository with change stream and reset |
+| 1C | `551e8d4` | feat(data): mock location provider, location settings and session store |
+| 1C | `0f29fb2` | docs: record phase 1C progress |
+| 1D | `056aace` | feat(core): require Sendable on SessionStore and LocationSettings |
+| 1D | `509edfd` | feat(features): app environment with preview defaults |
+| 1D | `bf83caa` | feat(features): navigation shell and dev settings screen |
+| 1D | `b75adec` | feat(app): wire the demo environment and add dev settings UI test |
+| 1D | `f392175` | docs: record phase 1D progress |
+| 1E | `70d387b` | feat(features): display helpers, error messages and radius options |
+| 1E | `2739185` | feat(nearby): view model with radius filter and request row |
+| 1E | `eedf201` | feat(detail): request detail with pick up, cancel and complete; nearby list screen |
+| 1E | `fa48783` | test(ui): browse nearby and pick up flow |
+| 1E | `3c6f226` | docs: record phase 1E progress |
+| 1F | `4d5b8d1` | refactor(features): share request status text between screens |
+| 1F | `db7ef87` | feat(post): post request view model with live validation |
+| 1F | `7568bd2` | feat(activity): my activity view model with two segments |
+| 1F | `5cc7334` | feat(features): post form, my activity screen and post-then-highlight navigation |
+| 1F | `06c1fb0` | test(ui): post and get picked up flow |
+| 1F | `d12181c` | docs: record phase 1F progress |
+| 1G | `9ae5d2f` | feat(app): add -uiTesting launch argument that removes the mock delay |
+| 1G | `81348ff` | feat(features): VoiceOver labels on rows and Dynamic Type layout for facts |
+| 1G | `96c6d8b` | test(ui): demo script test, shared UI test base and screenshot capture |
+| 1G | `627b80f` | docs: README with demo script and screenshots, expand architecture notes |
+| 1G | `3333580` | docs: record phase 1G progress and close out phase 1 (tag `v0.1.0-prototype`) |
 
 ## Confirmed decisions
 
@@ -83,6 +129,8 @@ Add entries as `YYYY-MM-DD · phase · decision · reason`.
 - 2026-10-07 · 1G · Dev Settings rows use primary text color, not the button tint · every row looked like a link
 - 2026-10-07 · 1G · `ScreenshotUITests` regenerates the README screenshots and is skipped unless `TEST_RUNNER_SCREENSHOT_DIR` is set · an agent cannot tap through the Simulator by hand to capture them
 - 2026-10-07 · 1G · Tag `v0.1.0-prototype` points at the tip of `phase/1g-hardening`, because the phase pull requests were not merged yet · if the pull requests are squash-merged, move the tag to the resulting commit on `main`
+- 2026-10-07 · post-1G · No pull requests: `main` was fast-forwarded to `phase/1g-hardening`, keeping every commit · the owner decided no review step is needed; the tag `v0.1.0-prototype` stays valid because no commit was rewritten
+- 2026-10-07 · post-1G · Added the "Commit map" section, one row per commit · the owner wants the progress file and the commit history to match, so changes are easy to trace and revert
 - 2026-10-07 · 1A · Tab bar buttons are found by label in UI tests (`app.tabBars.buttons["Nearby"]`) · SwiftUI does not reliably pass a tab item's `accessibilityIdentifier` to the tab bar button
 
 ## Known issues
@@ -96,13 +144,14 @@ Add entries as `YYYY-MM-DD · phase · decision · reason`.
 
 ## Open questions
 
-- 1B through 1G were each branched from the previous phase branch because the earlier pull requests were not merged yet. Merge them in order, or merge the latest alone, which contains the earlier ones.
+- 1B through 1G were each branched from the previous phase branch because the earlier pull requests were not merged yet. Resolved: no pull requests; `main` was fast-forwarded to the last phase branch, which contains the earlier ones.
 - The plan's 1A says "first commit pushed to `main`", while `CLAUDE.md` says one branch per phase. Resolved as: the pre-existing docs were committed straight to `main`, and the 1A work is on `phase/1a-scaffold` for a pull request.
 
 ## Session log
 
 Newest first, one line per session: `YYYY-MM-DD · phase · what was done · next step`.
 
+- 2026-10-07 · post-1G · Added the commit map to this file and fast-forwarded `main` to the Phase 1 work, with no pull requests · run the demo by hand
 - 2026-10-07 · 1G · `-uiTesting` flag, `DemoFlowUITests`, accessibility pass, README with demo script and screenshots, architecture notes; a fresh clone generates, lints and passes `swift test` and `xcodebuild test`; tagged `v0.1.0-prototype` · merge the pull requests, run the demo by hand
 - 2026-10-07 · 1F · `PostRequestViewModel`, `PostRequestView`, `ActivityViewModel`, `ActivityView`, `ActivityRow`, `ActivitySegment`, post-then-highlight navigation; 56 Features tests and Flow 1 UI tests; `swift test` and `xcodebuild test` pass · start 1G on `phase/1g-hardening`
 - 2026-10-07 · 1E · `NearbyViewModel`, `NearbyView`, `RequestRow`, `RadiusOption`, `RequestDetailViewModel`, `RequestDetailView`, shared display helpers; 38 Features tests and Flow 2 UI tests; `swift test` and `xcodebuild test` pass · start 1F on `phase/1f-post-activity`
