@@ -2,8 +2,8 @@
 
 Updated by every coding session. Read this after `docs/PLAN.md` and `docs/PLAN-PHASE-2.md`, and continue from the first unchecked item.
 
-**Current phase:** Phase 2 (UI refresh). 2A and 2B are done; waiting at the review gate before 2C. Phase 1 is complete (`v0.1.0-prototype`)
-**Next task:** Review gate: the team compares `docs/screenshots/phase-2/` with `docs/screenshots/phase-1/` and the outcome is recorded here. Then start 2C on `phase/2c-post-activity-settings`. Still open from Phase 1: run the demo script in the README by hand once
+**Current phase:** Phase 2 (UI refresh). 2A, 2B and 2C are done; 2D is next. Phase 1 is complete (`v0.1.0-prototype`)
+**Next task:** Start 2D on `phase/2d-polish`: consistency and accessibility passes, app icon, version `0.2.0`, README and architecture docs, tag `v0.2.0-ui`. Still open from Phase 1: run the demo script in the README by hand once
 
 ## Phase checklist
 
@@ -19,7 +19,7 @@ Phase 2, UI refresh ([PLAN-PHASE-2.md](PLAN-PHASE-2.md)):
 
 - [x] **2A.** Theme and shared components, "before" screenshots
 - [x] **2B.** Nearby and Request Detail, then the review gate
-- [ ] **2C.** Post, My Activity and Dev Settings
+- [x] **2C.** Post, My Activity and Dev Settings
 - [ ] **2D.** Polish, app icon, docs, tag `v0.2.0-ui`
 
 ## Commit map
@@ -81,6 +81,13 @@ One row per commit, oldest first, grouped by phase. Every session adds its commi
 | 2B | `6969208` | feat(nearby): restyle the list rows, location line, count and empty and error states |
 | 2B | `4dd7dfd` | feat(detail): header with icon and status badge, fact symbols, full-width action buttons |
 | 2B | `7ba2098` | test(ui): capture more states and a large text size, add Phase 2 Nearby and Request Detail screenshots |
+| 2B | `b5313c6` | docs: record phase 2B progress |
+| 2C | `7b94d85` | docs: record the review gate outcome after 2B |
+| 2C | `31ed44b` | feat(theme): section header, inline message, highlighted row background and its contrast test |
+| 2C | `96f761c` | feat(post): restyle headers, validation messages, location row and the post button |
+| 2C | `74d334e` | feat(activity): restyle rows with icon and badges, highlighted new row and empty states |
+| 2C | `5675fd9` | feat(dev-settings): red reset button and gray prototype note |
+| 2C | `251e302` | test(ui): capture Post, My Activity and Dev Settings states, refresh Phase 2 screenshots |
 
 ## Confirmed decisions
 
@@ -179,6 +186,13 @@ Add entries as `YYYY-MM-DD · phase · decision · reason`.
 - 2026-10-08 · 2B · Request Detail uses `toolbarTitleDisplayMode(.inline)` · it exists on macOS too, so `swift test` still builds the package
 - 2026-10-08 · 2B · `ScreenshotUITests` has a third test at the `accessibility-large` text size (launch argument `-UIPreferredContentSizeCategoryName`), and also captures Nearby with a "Yours" row, the Nearby error state, and Request Detail with Pick up and with the requester's two buttons · the plan asks for a by-eye check at that size and those states were not in the first set
 - 2026-10-08 · 2B · Phase 2 screenshots are in `docs/screenshots/phase-2/` (21 images for Nearby and Request Detail) · next to `phase-1/` for the review gate
+- 2026-10-08 · 2C · The highlighted new row uses `Theme.highlightOpacity` (0.08), not the 0.14 tint, drawn by `HighlightedRowBackground` over the plain background · at 0.14 the "Open" and "New" badges on top of it fell to about 4.2:1; at 0.08 every palette color stays above 4.5:1, and a test checks it. In dark mode the highlighted row is a little darker than a normal row, because the shared background style is black there
+- 2026-10-08 · 2C · `ActivityRow` splits the view model's subtitle ("Claimed by Bea · Posted by Dana") at " · " to show the status as a badge and the rest as gray text · the view model must not change in Phase 2. The spoken label is built from the unsplit subtitle, as before
+- 2026-10-08 · 2C · In `ActivityRow` the badge and "Posted by" text sit side by side when they fit and stack when they do not (`ViewThatFits`) · they overflow at accessibility text sizes
+- 2026-10-08 · 2C · Added `SectionHeader` (Post headers and the Nearby count) and `InlineMessage` (red text with a warning symbol, for validation, submit and location errors on Post) as shared components · the same styling was needed in several places
+- 2026-10-08 · 2C · The Post submit error is its own section above the button, and the Category section has no header · the button row has no card, so the error needs one; adding a "Category" header would add a visible string
+- 2026-10-08 · 2C · Dev Settings keeps the system section headers and its footer; only the checkmarks (brand color, semibold) and the Reset button changed · the plan asks for it to stay the plainest screen
+- 2026-10-08 · 2C · `docs/screenshots/phase-2/` now holds the full set: 16 captures in light, dark and `accessibility-large` (48 images, 11 MB) · replaces the 2B subset
 - 2026-10-07 · 1A · Tab bar buttons are found by label in UI tests (`app.tabBars.buttons["Nearby"]`) · SwiftUI does not reliably pass a tab item's `accessibilityIdentifier` to the tab bar button
 
 ## Known issues
@@ -187,7 +201,10 @@ Add entries as `YYYY-MM-DD · phase · decision · reason`.
 - The segmented radius and activity pickers do not grow with Dynamic Type. That is how the system control behaves; everything else was checked at the `accessibility-large` text size.
 - The red error banner on Request Detail (shown when an action fails) has not been seen on screen; no test flow makes an action fail.
 - On Request Detail the Location value wraps to two lines now that the row has a leading symbol.
-- Post, My Activity and Dev Settings still have the Phase 1 look until 2C.
+- The plan asks for the demo script to be run by hand in light and dark at the end of 2C. An agent cannot; `DemoFlowUITests` ran it in light mode, and the screenshot test walks most of it in dark mode.
+- At accessibility text sizes the Post location text wraps under its pin icon. That is how the system lays out a `Label` in a list at those sizes.
+- Not seen on screen, because no test flow produces them: the Post submit error, the Post location error, and the My Activity load error.
+- `FactRow` still has one literal (`spacing: 2`) for 2D's consistency pass.
 - In `ScreenshotUITests`, wait for something near the top of the screen before a capture: at the large text size, rows below the fold do not exist yet and a wait on them fails.
 - If dark-mode screenshots come out light, the simulator is stuck: `xcrun simctl shutdown` and `boot` it. This happened once on the iPhone 17 simulator, where even Settings stayed light.
 - CI does not run SwiftLint or SwiftFormat; run them locally before pushing.
@@ -207,6 +224,7 @@ Add entries as `YYYY-MM-DD · phase · decision · reason`.
 
 Newest first, one line per session: `YYYY-MM-DD · phase · what was done · next step`.
 
+- 2026-10-08 · 2C · Review gate passed with no changes. `PostRequestView`, `ActivityRow`, `ActivityView` and `DevSettingsView` restyled; every screen now uses the theme; screenshots in light, dark and `accessibility-large` checked by eye; 138 package tests (1 new) and the four behavior UI test classes pass unedited; Core, Data and view model diff is empty · start 2D on `phase/2d-polish`
 - 2026-10-08 · 2B · `RequestRow`, `NearbyView` and `RequestDetailView` restyled; screenshots in light, dark and `accessibility-large` checked by eye; 137 package tests and the four behavior UI test classes pass unedited; Core, Data and view model diff is empty · hold the review gate, then start 2C
 - 2026-10-08 · 2A · "Before" screenshots (12, light and dark), `RGBColor`, `AdaptiveColor`, `Theme`, category and status colors, six shared components plus the optional `FactRow` symbol, brand tint and accent color; 137 package tests (12 new) and all UI tests pass unedited; Core, Data and view model diff is empty · start 2B on `phase/2b-nearby-detail`
 - 2026-10-08 · CI · GitHub Actions workflow added and green on its second run (run 37726152972); first run exposed four UI test waits that were too tight for the runner · start 2A on `phase/2a-theme`
