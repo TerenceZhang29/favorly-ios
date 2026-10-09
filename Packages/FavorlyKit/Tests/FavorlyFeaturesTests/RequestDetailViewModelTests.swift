@@ -158,4 +158,29 @@ struct RequestDetailViewModelTests {
 
         #expect(await TestWorld.eventually { viewModel.statusText == "Claimed by Bea" })
     }
+
+    // MARK: Kindness scores
+
+    @Test func scoresShowBesideTheRequesterAndHelper() async {
+        let saffron = await loaded(TestWorld.seedID(12), as: DemoUsers.alex)
+        #expect(saffron.requesterScore == 0)
+        #expect(saffron.helperScore == 90)
+
+        let eggs = await loaded(as: DemoUsers.alex)
+        #expect(eggs.requesterScore == 18)
+        #expect(eggs.helperScore == nil)
+    }
+
+    @Test func pickingUpShowsTheHelpersScore() async {
+        let viewModel = await loaded(as: DemoUsers.bea)
+        await viewModel.pickUp()
+        #expect(viewModel.helperScore == 90)
+    }
+
+    @Test func completingRaisesTheHelpersScore() async {
+        let viewModel = await loaded(TestWorld.ladderID, as: DemoUsers.dana)
+        #expect(viewModel.helperScore == 18)
+        await viewModel.complete()
+        #expect(viewModel.helperScore == 28)
+    }
 }

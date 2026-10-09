@@ -17,6 +17,9 @@ final class RequestDetailViewModel {
     /// Why the last pick up, cancel or complete failed.
     private(set) var actionError: String?
     private(set) var isWorking = false
+    /// Kindness scores of the requester and the helper, or nil until known. A failed lookup leaves them out.
+    private(set) var requesterScore: Int?
+    private(set) var helperScore: Int?
 
     @ObservationIgnored private let environment: AppEnvironment
 
@@ -72,6 +75,7 @@ final class RequestDetailViewModel {
             distanceText = location.map {
                 DistanceFormatter.miles(Distance.meters(from: $0.point, to: request.location.point))
             }
+            await loadScores(of: request)
             state = .loaded(request)
         } catch is CancellationError {
             // The screen went away.
@@ -103,6 +107,15 @@ final class RequestDetailViewModel {
 
     // MARK: Helpers
 
+    private func loadScores(of request: HelpRequest) async {
+        requesterScore = await score(of: request.requesterID)
+        helperScore = if let helperID = request.helperID { await score(of: helperID) } else { nil }
+    }
+
+    private func score(of user: UserID) async -> Int? {
+        try? await environment.kindness.kindnessSummary(for: user).lifetimePoints
+    }
+
     private var currentUserID: UserID {
         environment.session.currentUser.id
     }
@@ -119,7 +132,9 @@ final class RequestDetailViewModel {
         actionError = nil
 
         do {
-            state = try await .loaded(action(requestID, currentUserID))
+            let request = try await action(requestID, currentUserID)
+            await loadScores(of: request)
+            state = .loaded(request)
         } catch is CancellationError {
             // The screen went away.
         } catch {
