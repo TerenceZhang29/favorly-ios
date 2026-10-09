@@ -1,6 +1,7 @@
 import XCTest
 
-/// Captures every screen in light mode, dark mode, at a large accessibility text size and at the largest one. Skipped unless a destination
+/// Captures every screen in light mode, dark mode, at a large accessibility text size and at the largest one. Skipped
+/// unless a destination
 /// folder is given:
 /// `TEST_RUNNER_SCREENSHOT_DIR=/some/folder xcodebuild test ... -only-testing:FavorlyUITests/ScreenshotUITests`
 final class ScreenshotUITests: UITestCase {

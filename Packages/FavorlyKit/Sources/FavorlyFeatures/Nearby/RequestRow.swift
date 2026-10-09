@@ -16,10 +16,14 @@ struct RequestRow: View {
                 Text("\(distanceText) · \(requesterName) · \(postedText)")
                     .font(.footnote)
                     .foregroundStyle(.secondary)
-                if isOwn, stacksBadge { ownBadge }
+                if isOwn, stacksBadge {
+                    ownBadge
+                }
             }
             Spacer(minLength: Theme.Spacing.medium)
-            if isOwn, !stacksBadge { ownBadge }
+            if isOwn, !stacksBadge {
+                ownBadge
+            }
         }
         .padding(.vertical, Theme.Spacing.small)
         .accessibilityElement(children: .ignore)

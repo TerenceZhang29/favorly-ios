@@ -16,7 +16,9 @@ struct ActivityRow: View {
                     .fontWeight(.semibold)
                 if stacksBadges {
                     statusLine
-                    if isNew { newBadge }
+                    if isNew {
+                        newBadge
+                    }
                 } else {
                     ViewThatFits(in: .horizontal) {
                         HStack(spacing: Theme.Spacing.medium) { statusLine }
@@ -25,7 +27,9 @@ struct ActivityRow: View {
                 }
             }
             Spacer(minLength: Theme.Spacing.medium)
-            if isNew, !stacksBadges { newBadge }
+            if isNew, !stacksBadges {
+                newBadge
+            }
         }
         .padding(.vertical, Theme.Spacing.small)
         .accessibilityElement(children: .ignore)
