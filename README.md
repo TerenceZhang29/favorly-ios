@@ -2,7 +2,7 @@
 
 [![CI](https://github.com/TerenceZhang29/favorly-ios/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/TerenceZhang29/favorly-ios/actions/workflows/ci.yml)
 
-Favorly is a hyperlocal iOS app that lets neighbors post small help requests and pick them up. This repo holds the prototype (version 0.2.0): SwiftUI, fake data and a fake location, run in the iOS Simulator. Phase 1 built the flows and Phase 2 gave them their look.
+Favorly is a hyperlocal iOS app that lets neighbors post small help requests and pick them up. This repo holds the prototype (version 0.3.0): SwiftUI, fake data and a fake location, run in the iOS Simulator. Phase 1 built the flows, Phase 2 gave them their look, and Phase 3 added the Kindness score, profiles, chat and reviews.
 
 | Nearby | Request detail | My Activity | Dark mode |
 | --- | --- | --- | --- |
@@ -52,7 +52,7 @@ xcodebuild test -project Favorly.xcodeproj -scheme Favorly \
 
 The second command runs the package tests again on iOS, plus the UI tests. `DemoFlowUITests` walks through the demo script below. UI tests launch the app with `-uiTesting`, which removes the 300 ms delay the mock data layer adds to mimic a network.
 
-Every push to `main` and to `phase/**` branches runs both commands on GitHub Actions (`.github/workflows/ci.yml`).
+Every push to `main` and to `phase/**`, `ci/**` and `claude/**` branches runs both commands on GitHub Actions (`.github/workflows/ci.yml`). A second workflow, `.github/workflows/manual-checks.yml`, runs SwiftLint and SwiftFormat on `claude/**` branches (agent sessions without Xcode) or by hand from the Actions tab, and can capture the screenshots and upload them as an artifact.
 
 ## Lint and format
 
@@ -73,6 +73,17 @@ One person plays both sides by switching users in the Dev Settings tab. It takes
 6. Dev Settings: switch back to Alex. My Activity shows the rice request as *Claimed by Bea*. Open it and tap Mark completed.
 7. Dev Settings: choose Ithaca, NY. Nearby shows "No requests within 1 mi". Tap Reset demo data to finish.
 
+### Phase 3: Kindness score, profiles, chat and reviews
+
+Start from a fresh launch (or Reset demo data, and switch back to Alex and Cornell Tech). `DemoFlowUITests.testExtendedDemoScript` runs the same steps.
+
+1. Profile tab: Alex has a score of 0 and "No activity yet".
+2. Post "Need a cup of rice" as Alex. Switch to Bea: her Profile shows 90 points and "90 of 100 points" on the gift card.
+3. As Bea, open the rice request in Nearby, Pick up, then tap Message Alex and send "On my way". Switch to Alex, open the request from My Activity, tap Message Bea, reply, go back and tap Mark completed.
+4. Still as Alex, tap Leave a review: 5 stars, "Fast and friendly", Submit.
+5. Switch to Bea. Profile shows 110 points, the new review and the favor under Past activities. Tap Redeem: the code `FAVORLY-0001` appears and progress reads "10 of 100 points".
+6. Switch to Chen. In My Activity open "Water my plants for the weekend" and tap the Helper row: Bea's profile shows her score and reviews, but no gift card.
+
 ## Updating the screenshots
 
 `ScreenshotUITests` is skipped unless it is given a folder to write to:
@@ -84,7 +95,7 @@ TEST_RUNNER_SCREENSHOT_DIR=/tmp/favorly-shots xcodebuild test \
   -only-testing:FavorlyUITests/ScreenshotUITests
 ```
 
-It writes each screen and its main states (16 captures) four times: `<name>-light.png`, `<name>-dark.png`, `<name>-accessibility-large.png` and `<name>-accessibility-largest.png`. The first three sets are kept in `docs/screenshots/phase-2/`, and the four images above are copies from it. The Phase 1 look is kept in `docs/screenshots/phase-1/`.
+It writes each screen and its main states (25 captures) four times: `<name>-light.png`, `<name>-dark.png`, `<name>-accessibility-large.png` and `<name>-accessibility-largest.png`. The Phase 2 set is kept in `docs/screenshots/phase-2/`, and the four images above are copies from it. The Phase 1 look is kept in `docs/screenshots/phase-1/`. The Phase 3 screens (profile, chat, review form) are captured too but not yet committed; see `docs/PROGRESS.md`.
 
 ## App icon
 

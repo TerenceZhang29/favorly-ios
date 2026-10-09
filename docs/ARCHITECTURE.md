@@ -29,12 +29,15 @@ The three modules are library targets of one local package, `Packages/FavorlyKit
 
 ## How a screen is put together
 
-- `AppEnvironment` holds the four services: `RequestRepository`, `LocationProvider`, `SessionStore` and `LocationSettings`. All four are protocols in Core.
+- `AppEnvironment` holds seven services, all protocols in Core: `RequestRepository`, `KindnessRepository`, `ReviewRepository`, `ChatRepository`, `LocationProvider`, `SessionStore` and `LocationSettings`.
+- One mock actor, `MockRequestRepository`, implements all four repository protocols, one conformance per file (`MockRequestRepository+Kindness.swift`, `+Reviews.swift`, `+Chat.swift`). `AppEnvironment.demo()` passes the same instance to each. One actor keeps rules that span requests and reviews atomic, and keeps one `changes()` stream and one `reset()` for everything. A real backend can split them later without touching Features.
+- The Kindness score is never stored. `KindnessRules.summary` derives it from completed requests, reviews and redemptions each time it is asked for.
 - `RootView` reads the environment once and hands it to each screen's initializer. The screen creates its view model from it.
+- Each tab's `NavigationStack` registers its destinations once, through `appDestinations(_:)`: a `RequestID` opens Request Detail and a `UserID` opens that user's profile. Chat is pushed and the review form is a sheet, both from Request Detail.
 - View models are `@MainActor @Observable` classes. They expose a `state` enum and async methods such as `load()`, and hold no SwiftUI types.
 - Screens refresh in two ways. `observeChanges()` reloads after any repository write. A `reloadKey` on the view model, used with `.task(id:)`, reloads when the user, location or radius changes.
-- Business rules live in Core (`RequestRules`, `DraftValidator`, `Distance`). The repository enforces them; view models use the same rules to decide which buttons to show.
-- Other users see only a location label and a rounded distance, never coordinates.
+- Business rules live in Core (`RequestRules`, `DraftValidator`, `Distance`, `KindnessRules`, `ReviewRules`, `ChatRules`). The repository enforces them; view models use the same rules to decide which buttons to show.
+- Other users see only a location label and a rounded distance, never coordinates. Someone else's profile shows completed requests only, and never gift-card progress or reward codes.
 
 ## Theme
 
@@ -42,7 +45,7 @@ How the app looks is decided in one place. [PLAN-PHASE-2.md](PLAN-PHASE-2.md) ha
 
 - **One source of style.** Screen files never contain a literal color, corner radius, spacing number or shape. They use `Theme` and the shared components.
 - `Shared/Theme/` holds `Theme` (colors, spacing, radii, icon sizes, opacities), `AdaptiveColor` (a light and a dark value that follows the color scheme) and `RGBColor` (plain numbers, so contrast can be unit tested). Categories and statuses get their color from `RequestCategory+Color` and `RequestStatus+Color`.
-- `Shared/Components/` holds the building blocks: `CategoryIcon`, `StatusBadge`, `TagBadge`, `PrimaryButtonStyle`, `SecondaryButtonStyle`, `MessageView`, `SectionHeader`, `InlineMessage`, `ErrorBanner` and a few list helpers. They take plain values, never a view model, and each has a light and dark preview.
+- `Shared/Components/` holds the building blocks: `CategoryIcon`, `StatusBadge`, `TagBadge`, `PrimaryButtonStyle`, `SecondaryButtonStyle`, `MessageView`, `SectionHeader`, `InlineMessage`, `ErrorBanner`, `AvatarView`, `ScoreLabel`, `GiftCardCard`, `StarRating`, `StarRatingPicker` and a few list helpers. They take plain values, never a view model, and each has a light and dark preview.
 - A colored element is the color as foreground on a 14% tint of itself. Only the one primary button on a screen is a solid fill.
 - Backgrounds and plain text use the system's colors (`.primary`, `.secondary`, list backgrounds), so dark mode and Increase Contrast work without extra code.
 - `ThemeTests` checks that every palette color reaches a 4.5:1 contrast ratio on its own tint, in both modes. A new color goes into `Theme.Colors.palette` so the test covers it.
