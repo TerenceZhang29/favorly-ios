@@ -24,6 +24,8 @@ final class ChatUITests: UITestCase {
         waitFor(element("chat.empty"), toRead: "Say hello")
         send("On my way")
         XCTAssertTrue(bubble(containing: "You said: On my way").waitForExistence(timeout: Self.waitTimeout))
+        // Leave the chat, so the keyboard closes and the tab bar is visible again.
+        app.navigationBars.buttons.firstMatch.tap()
 
         // Alex sees it and replies.
         switchUser(to: "user-alex")

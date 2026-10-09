@@ -140,7 +140,11 @@ final class RequestDetailViewModel {
             nil
         }
         requesterScore = await score(of: request.requesterID)
-        helperScore = if let helperID = request.helperID { await score(of: helperID) } else { nil }
+        helperScore = if let helperID = request.helperID {
+            await score(of: helperID)
+        } else {
+            nil
+        }
     }
 
     private func score(of user: UserID) async -> Int? {

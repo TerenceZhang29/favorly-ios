@@ -15,6 +15,7 @@ struct ChatView: View {
                 content
             }
             .listStyle(.plain)
+            .scrollDismissesKeyboard(.interactively)
             .onChange(of: viewModel.messages?.last?.id) { _, lastID in
                 if let lastID {
                     withAnimation { proxy.scrollTo(lastID, anchor: .bottom) }

@@ -13,11 +13,12 @@ extension MockRequestRepository: ChatRepository {
         try await simulateLatency()
         guard let helpRequest = requests[request] else { throw FavorlyError.notFound }
         try ChatRules.validateSend(request: helpRequest, by: user)
+        let text = try ChatRules.validateText(text)
         let message = ChatMessage(
             id: MessageID(rawValue: UUID()),
             requestID: request,
             senderID: user,
-            text: try ChatRules.validateText(text),
+            text: text,
             sentAt: now()
         )
         messages.append(message)
