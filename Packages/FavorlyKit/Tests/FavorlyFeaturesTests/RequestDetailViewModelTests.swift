@@ -211,4 +211,45 @@ struct RequestDetailViewModelTests {
         #expect(viewModel.canMessage)
         #expect(viewModel.messageButtonTitle == "Message Bea")
     }
+
+    // MARK: Reviews
+
+    @Test func theRequesterCanReviewACompletedRequestOnce() async throws {
+        let viewModel = await loaded(TestWorld.seedID(12), as: DemoUsers.dana)
+        #expect(viewModel.canReview)
+        #expect(viewModel.review == nil)
+
+        _ = try await world.repository.submitReview(
+            NewReviewDraft(rating: 5, comment: "Fast and friendly"),
+            for: TestWorld.seedID(12),
+            by: DemoUsers.dana.id
+        )
+        await viewModel.load()
+
+        #expect(!viewModel.canReview)
+        #expect(viewModel.review?.comment == "Fast and friendly")
+        #expect(viewModel.reviewTitle == "Your review")
+        #expect(viewModel.helperScore == 100)
+    }
+
+    @Test func othersSeeTheReviewButCannotReview() async {
+        let asHelper = await loaded(TestWorld.seedID(17), as: DemoUsers.chen)
+        #expect(!asHelper.canReview)
+        #expect(asHelper.review?.rating == 4)
+        #expect(asHelper.reviewTitle == "Review")
+
+        let asHelperOfSaffron = await loaded(TestWorld.seedID(12), as: DemoUsers.bea)
+        #expect(!asHelperOfSaffron.canReview)
+    }
+
+    @Test func anOpenOrClaimedRequestCannotBeReviewed() async {
+        #expect(await !loaded(as: DemoUsers.chen).canReview)
+        #expect(await !loaded(TestWorld.ladderID, as: DemoUsers.dana).canReview)
+    }
+
+    @Test func completingARequestOffersTheReview() async {
+        let viewModel = await loaded(TestWorld.ladderID, as: DemoUsers.dana)
+        await viewModel.complete()
+        #expect(viewModel.canReview)
+    }
 }

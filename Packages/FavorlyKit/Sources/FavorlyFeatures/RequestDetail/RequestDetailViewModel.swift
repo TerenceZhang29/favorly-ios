@@ -20,6 +20,8 @@ final class RequestDetailViewModel {
     /// Kindness scores of the requester and the helper, or nil until known. A failed lookup leaves them out.
     private(set) var requesterScore: Int?
     private(set) var helperScore: Int?
+    /// The requester's review of the helper, once there is one.
+    private(set) var review: Review?
 
     @ObservationIgnored private let environment: AppEnvironment
 
@@ -65,6 +67,17 @@ final class RequestDetailViewModel {
         allows(RequestRules.validateComplete)
     }
 
+    /// The requester, on a completed request they have not reviewed yet.
+    var canReview: Bool {
+        guard let request else { return false }
+        return ReviewRules.canReview(request: request, by: currentUserID, existing: review)
+    }
+
+    /// "Your review" for the person who wrote it, "Review" for everyone else.
+    var reviewTitle: String {
+        review?.reviewerID == currentUserID ? "Your review" : "Review"
+    }
+
     /// The request is picked up and the signed-in user is its requester or helper.
     var canMessage: Bool {
         allows(ChatRules.validateRead)
@@ -87,7 +100,7 @@ final class RequestDetailViewModel {
             distanceText = location.map {
                 DistanceFormatter.miles(Distance.meters(from: $0.point, to: request.location.point))
             }
-            await loadScores(of: request)
+            await loadExtras(of: request)
             state = .loaded(request)
         } catch is CancellationError {
             // The screen went away.
@@ -119,7 +132,13 @@ final class RequestDetailViewModel {
 
     // MARK: Helpers
 
-    private func loadScores(of request: HelpRequest) async {
+    /// Loads the scores beside the names and the review. A failed lookup leaves them out.
+    private func loadExtras(of request: HelpRequest) async {
+        review = if request.status == .completed {
+            try? await environment.reviews.review(for: request.id)
+        } else {
+            nil
+        }
         requesterScore = await score(of: request.requesterID)
         helperScore = if let helperID = request.helperID { await score(of: helperID) } else { nil }
     }
@@ -145,7 +164,7 @@ final class RequestDetailViewModel {
 
         do {
             let request = try await action(requestID, currentUserID)
-            await loadScores(of: request)
+            await loadExtras(of: request)
             state = .loaded(request)
         } catch is CancellationError {
             // The screen went away.
