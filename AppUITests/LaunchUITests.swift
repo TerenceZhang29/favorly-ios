@@ -2,10 +2,10 @@ import XCTest
 
 final class LaunchUITests: UITestCase {
     @MainActor
-    func testLaunchShowsFourTabs() {
+    func testLaunchShowsFiveTabs() {
         launchApp()
 
-        for title in ["Nearby", "Post", "My Activity", "Dev Settings"] {
+        for title in ["Nearby", "Post", "My Activity", "Profile", "Dev Settings"] {
             XCTAssertTrue(
                 app.tabBars.buttons[title].waitForExistence(timeout: Self.waitTimeout),
                 "Missing tab: \(title)"

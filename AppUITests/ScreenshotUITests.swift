@@ -45,7 +45,7 @@ final class ScreenshotUITests: UITestCase {
         )
     }
 
-    /// Walks the demo script and writes `<screen>-<suffix>.png` for the five screens and their main states.
+    /// Walks the demo script and writes `<screen>-<suffix>.png` for every screen and its main states.
     @MainActor
     private func captureScreens(
         appearance: XCUIDevice.Appearance,
@@ -75,6 +75,10 @@ final class ScreenshotUITests: UITestCase {
         openTab("My Activity")
         waitFor(element("activity.empty"), toRead: "You haven't posted any requests yet.")
         try capture("my-activity-empty")
+
+        openTab("Profile")
+        waitFor(element("profile.name"), toRead: "Alex")
+        try capture("profile-empty")
 
         openTab("Post")
         // At the largest text size the location row is below the fold, so it is given a moment but not required.
@@ -125,6 +129,10 @@ final class ScreenshotUITests: UITestCase {
         XCTAssertTrue(row("activity.row.", containing: "Posted by Alex").waitForExistence(timeout: Self.waitTimeout))
         try capture("my-activity-picked-up")
         app.segmentedControls["activity.segment"].buttons["My requests"].tap()
+
+        openTab("Profile")
+        waitFor(element("profile.name"), toRead: "Bea")
+        try capture("profile")
     }
 
     @MainActor
@@ -134,6 +142,10 @@ final class ScreenshotUITests: UITestCase {
         // Wait for something at the top: at large text sizes the buttons below the fold do not exist yet.
         XCTAssertTrue(app.navigationBars["Request"].waitForExistence(timeout: Self.waitTimeout))
         try capture("request-detail-own")
+        scrollToAndTap(element("detail.helper"))
+        waitFor(element("profile.name"), toRead: "Bea")
+        try capture("profile-other")
+        app.navigationBars.buttons.firstMatch.tap()
         openTab("My Activity")
         XCTAssertTrue(row("activity.row.", containing: "Claimed by Bea").waitForExistence(timeout: Self.waitTimeout))
         try capture("my-activity")
