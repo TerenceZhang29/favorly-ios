@@ -23,6 +23,9 @@ enum Theme {
             brand, categoryIngredient, categoryMoving, categoryCar, categoryErrand,
             neutral, statusOpen, statusClaimed, statusCancelled,
         ]
+
+        /// The colors an avatar can take: the colorful palette entries, without the gray or the status colors.
+        static let avatars = [brand, categoryIngredient, categoryMoving, categoryCar, categoryErrand]
     }
 
     enum Spacing {
@@ -43,6 +46,8 @@ enum Theme {
     enum IconSize {
         static let row: CGFloat = 36
         static let large: CGFloat = 56
+        /// Side of the avatar circle on a profile.
+        static let avatar: CGFloat = 64
         /// Size of the symbol as a share of the tile's side.
         static let symbolScale: CGFloat = 0.5
         /// The most a tile grows with Dynamic Type, as a multiple of its default side.
