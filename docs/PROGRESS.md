@@ -2,8 +2,8 @@
 
 Updated by every coding session. Read this after `docs/PLAN.md`, `docs/PLAN-PHASE-2.md` and `docs/PLAN-PHASE-3.md`, and continue from the first unchecked item.
 
-**Current phase:** Phase 2 (UI refresh) is complete (`v0.2.0-ui`). Phase 3 (Kindness score, profiles, chat and reviews) is next. Phase 1 is complete (`v0.1.0-prototype`)
-**Next task:** Start 3A on `phase/3a-kindness-core`. Still open for a person: run the demo script in the README by hand once, in light and in dark mode, and look over the final screenshots in `docs/screenshots/phase-2/`
+**Current phase:** Phase 3 (Kindness score, profiles, chat and reviews). 3A is done, pending a green CI run on macOS (see Known issues). Phase 2 is complete (`v0.2.0-ui`), Phase 1 is complete (`v0.1.0-prototype`)
+**Next task:** Confirm CI is green for 3A, fast-forward `main` to it, then start 3B on `phase/3b-profile`. Still open for a person: run the demo script in the README by hand once, in light and in dark mode, and look over the final screenshots in `docs/screenshots/phase-2/`
 
 ## Phase checklist
 
@@ -24,7 +24,7 @@ Phase 2, UI refresh ([PLAN-PHASE-2.md](PLAN-PHASE-2.md)):
 
 Phase 3, Kindness score, profiles, chat and reviews ([PLAN-PHASE-3.md](PLAN-PHASE-3.md)):
 
-- [ ] **3A.** Kindness score: core and data (rules, repository, seed history)
+- [x] **3A.** Kindness score: core and data (rules, repository, seed history)
 - [ ] **3B.** Profile tab with score and gift card
 - [ ] **3C.** Chat between requester and helper
 - [ ] **3D.** Reviews
@@ -103,6 +103,10 @@ One row per commit, oldest first, grouped by phase. Every session adds its commi
 | 2D | `d8c5de2` | fix(a11y): keep rows readable at the largest text size |
 | 2D | `e060b15` | style: apply SwiftFormat and wrap a long comment |
 | 2D | `1d87308` | docs: README with Phase 2 screenshots and a dark one, Theme section in the architecture notes |
+| 2D | `5635026` | docs: record phase 2D progress and close out phase 2 |
+| 3A | `27f79c5` | feat(core): kindness models, repositories, rules and two new errors |
+| 3A | `403bcd9` | feat(data): history seeds 13-17, demo reviews, kindness and review reads in the mock repository |
+| 3A | `635a8ce` | feat(features): kindness and review repositories in AppEnvironment, demo wiring and preview stubs |
 
 ## Confirmed decisions
 
@@ -223,10 +227,25 @@ Add entries as `YYYY-MM-DD · phase · decision · reason`.
 - 2026-10-09 · Phase 3 plan · Profile picture: an initials avatar drawn in code, no image assets · owner's choice; keeps Phase 2's no-image-assets rule
 - 2026-10-09 · Phase 3 plan · New capabilities are three new Core protocols (`KindnessRepository`, `ReviewRepository`, `ChatRepository`), all implemented by the one `MockRequestRepository` actor · `RequestRepository` stays as it is, and one actor keeps cross-cutting rules atomic with one `changes()` stream and one `reset()`
 - 2026-10-09 · Phase 3 plan · Five completed seed requests and seed reviews are added so Bea starts at 90 points; none involve Alex · profiles need history and the demo must reach a gift card in one favor, without changing Alex's empty states or any Nearby count
+- 2026-10-09 · 3A · 3A adds only what its task list names: `Review`, `Redemption`, `KindnessSummary`, `ReviewID`, `RedemptionID`, `KindnessRepository`, and `ReviewRepository` with its two reads. `NewReviewDraft` and `submitReview` wait for 3D, `ChatMessage`, `MessageID` and `ChatRepository` for 3C · the plan splits them that way
+- 2026-10-09 · 3A · `KindnessRules` has `pointsPerFavor` (10), `pointsPerStar` (2), `giftCardCost` (100), `summary(completedAsHelper:reviews:redemptions:)`, `validateRedeem(_:)` and `rewardCode(number:)` · the plan wants the values defined once; redeem validation and the code format are rules too, so they live beside them
+- 2026-10-09 · 3A · `summary` counts stars only from reviews of requests it counts as completed favors · a review can only exist for a completed request, but the pure function should not trust its input; it also makes a stray review in a test seed harmless
+- 2026-10-09 · 3A · Reward codes count up across all users, not per user (Bea's first is `FAVORLY-0001`, the next anyone redeems is `FAVORLY-0002`), and `reset()` starts them over · a gift card code should be unique; the demo script only needs Bea's to be `FAVORLY-0001`
+- 2026-10-09 · 3A · `review(for:)` throws `notFound` for an unknown request and returns `nil` for a known request with no review · matches `request(id:)`
+- 2026-10-09 · 3A · `redemptions(by:)` is newest first by the order of redeeming, not by `createdAt` · tests use a fixed clock, so two redemptions share a time
+- 2026-10-09 · 3A · `MockRequestRepository`'s shared state (`requests`, `reviews`, `redemptions`, `now`, `broadcaster`, `simulateLatency()`) is internal instead of private · the plan puts each conformance in its own file, and Swift's `private` does not reach across files. It is still actor-isolated and not public
+- 2026-10-09 · 3A · `MockRequestRepository.init` gains `reviewSeed` (defaults to `DemoReviews.all()`), and `reset()` restores reviews and clears redemptions · tests pass a fixed clock to both seeds, as they do for requests
+- 2026-10-09 · 3A · Added `DemoRequests.id(_:)` for the fixed seed IDs · `DemoReviews` needs the history requests' IDs, and tests can use it instead of building UUIDs by hand
+- 2026-10-09 · 3A · History seeds 13–17 were posted 3, 4, 5, 6 and 2 days ago in the requester's own neighborhood; like every seed, they were claimed halfway between posting and now, and each review comes a few hours after its claim · "several days old" in the plan; the neighborhoods keep them believable on a profile. They are completed, so no Nearby count changes
+- 2026-10-09 · 3A · `AppEnvironment` gains `kindness` and `reviews` in this phase; `chat` comes with `ChatRepository` in 3C. `AppEnvironment.demo()`, `TestWorld` and `AppEnvironmentTests` pass the one `MockRequestRepository` to all three. `PreviewRequestRepository` gains `reviews` (empty by default) and read-only conformances; its redeem throws `notAllowed` · the plan's wiring, limited to the protocols that exist so far
+- 2026-10-09 · 3A · Phase 1 and 2 tests edited only for the larger seed: `DemoRequestsTests` (17 requests; the distance spread and status mix are checked on the first twelve, the Phase 1 set), `MockRequestRepositoryTests` (Chen posted 6, Chen picked up a claimed and a completed one, Bea picked up five completed ones) and `ActivityViewModelTests` (the same counts through the view model, and Bea's "Picked up by me" holds 6 after picking up the eggs). `DisplayTests` gets two new rows for the new error messages, and `AppEnvironmentTests` builds the environment with the new members · the guardrails allow edits where the plan changes what a test asserts
+- 2026-10-09 · 3A · New error messages: `alreadyReviewed` → "You already reviewed this favor.", `notEnoughPoints` → "You need 100 points to redeem a gift card." (the number comes from `KindnessRules.giftCardCost`) · plain wording in the style of the existing messages
+- 2026-10-09 · 3A · Worked on the session branch `claude/brave-cray-shr7y8`, not `phase/3a-kindness-core`, and did not fast-forward or push `main` · this session ran in a cloud container that may push only its assigned branch. The phase is one linear set of commits on top of `main`, so `git merge --ff-only claude/brave-cray-shr7y8` on `main` brings it in
 - 2026-10-07 · 1A · Tab bar buttons are found by label in UI tests (`app.tabBars.buttons["Nearby"]`) · SwiftUI does not reliably pass a tab item's `accessibilityIdentifier` to the tab bar button
 
 ## Known issues
 
+- 3A was built in a Linux container with no Xcode, SwiftLint or SwiftFormat. `swift test` ran there (Swift 6.1.3) over Core, Data and every Features file and test that does not import SwiftUI: 154 tests pass with no warnings, including all four view model suites. Not run locally: the SwiftUI-importing Features tests (`AppEnvironmentTests`, `ThemeTests`, `RGBColorTests`, `RootTabTests`), the app build and the UI tests. Their 3A edits are mechanical (new `AppEnvironment` arguments), and the CI workflow (run by hand on the session branch) covers them. SwiftLint and SwiftFormat were not run; lines were kept under 120 characters by hand
 - Not yet checked by a person: the demo script has only been run by `DemoFlowUITests`, and VoiceOver labels were set in code and read back through UI tests, not listened to with VoiceOver on.
 - The segmented radius and activity pickers do not grow with Dynamic Type. That is how the system control behaves; everything else was checked at the `accessibility-large` text size.
 - The red error banner on Request Detail (shown when an action fails) has not been seen on screen; no test flow makes an action fail.
@@ -262,6 +281,7 @@ Add entries as `YYYY-MM-DD · phase · decision · reason`.
 
 Newest first, one line per session: `YYYY-MM-DD · phase · what was done · next step`.
 
+- 2026-10-09 · 3A · `Review`, `Redemption`, `KindnessSummary` and their IDs, `KindnessRepository`, `ReviewRepository` (reads), `KindnessRules`, `alreadyReviewed` and `notEnoughPoints` with messages; seeds 13–17 and `DemoReviews` (Bea 90, Chen 18, Dana 0, Alex 0); kindness and review conformances on `MockRequestRepository`; `kindness` and `reviews` in `AppEnvironment`, demo wiring, preview stubs and `TestWorld`. 154 tests pass on Linux; app build, UI tests and lint left to CI and a Mac · confirm CI, fast-forward `main`, start 3B on `phase/3b-profile`
 - 2026-10-09 · 2D · Consistency pass (no style literals left outside `Theme`), accessibility pass at the largest text size, with Increase Contrast and with Reduce Transparency (three row layout fixes), app icon and its script, version `0.2.0`, README and architecture docs, refreshed screenshots; 138 package tests and 12 UI tests pass, the four behavior classes unedited; Core, Data, view model and existing test diff is empty; SwiftLint and SwiftFormat clean; tagged `v0.2.0-ui` · start 3A on `phase/3a-kindness-core`
 - 2026-10-09 · Phase 3 plan · Wrote `docs/PLAN-PHASE-3.md` (Kindness score, profiles, chat and reviews in five phases, 3A–3E), added the Phase 3 checklist, decisions and open questions here, updated `CLAUDE.md` and the README to point at it; no code changed · finish 2D on `phase/2d-polish`, then start 3A on `phase/3a-kindness-core`
 - 2026-10-08 · 2C · Review gate passed with no changes. `PostRequestView`, `ActivityRow`, `ActivityView` and `DevSettingsView` restyled; every screen now uses the theme; screenshots in light, dark and `accessibility-large` checked by eye; 138 package tests (1 new) and the four behavior UI test classes pass unedited; Core, Data and view model diff is empty · start 2D on `phase/2d-polish`
