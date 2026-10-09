@@ -10,4 +10,8 @@ public enum FavorlyError: Error, Equatable, Sendable {
     /// Carries a user-facing message.
     case validation(String)
     case locationUnavailable
+    /// The requester already reviewed this request.
+    case alreadyReviewed
+    /// Fewer available Kindness points than a gift card costs.
+    case notEnoughPoints
 }

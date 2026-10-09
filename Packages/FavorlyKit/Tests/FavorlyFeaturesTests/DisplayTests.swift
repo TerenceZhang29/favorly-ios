@@ -37,6 +37,8 @@ struct DisplayTests {
         (.invalidTransition(from: .completed, to: .cancelled), "This request can't be changed that way anymore."),
         (.validation("Title must be at least 3 characters."), "Title must be at least 3 characters."),
         (.locationUnavailable, "Your location isn't available right now."),
+        (.alreadyReviewed, "You already reviewed this favor."),
+        (.notEnoughPoints, "You need 100 points to redeem a gift card."),
     ])
     func everyFavorlyErrorHasAUserMessage(error: FavorlyError, expected: String) {
         #expect(ErrorMessage.text(for: error) == expected)
