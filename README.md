@@ -2,11 +2,11 @@
 
 [![CI](https://github.com/TerenceZhang29/favorly-ios/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/TerenceZhang29/favorly-ios/actions/workflows/ci.yml)
 
-Favorly is a hyperlocal iOS app that lets neighbors post small help requests and pick them up. This repo holds the Phase 1 prototype: SwiftUI, fake data and a fake location, run in the iOS Simulator.
+Favorly is a hyperlocal iOS app that lets neighbors post small help requests and pick them up. This repo holds the prototype (version 0.2.0): SwiftUI, fake data and a fake location, run in the iOS Simulator. Phase 1 built the flows and Phase 2 gave them their look.
 
-| Nearby | Request detail | My Activity |
-| --- | --- | --- |
-| ![Nearby list with a radius picker](docs/screenshots/nearby.png) | ![Request detail after a pick up](docs/screenshots/request-detail.png) | ![My Activity showing a claimed request](docs/screenshots/my-activity.png) |
+| Nearby | Request detail | My Activity | Dark mode |
+| --- | --- | --- | --- |
+| ![Nearby list with a radius picker](docs/screenshots/nearby.png) | ![Request detail after a pick up](docs/screenshots/request-detail.png) | ![My Activity showing a claimed request](docs/screenshots/my-activity.png) | ![Nearby list in dark mode](docs/screenshots/nearby-dark.png) |
 
 The Phase 1 plan is in [docs/PLAN.md](docs/PLAN.md), the Phase 2 (UI refresh) plan in [docs/PLAN-PHASE-2.md](docs/PLAN-PHASE-2.md), the Phase 3 (Kindness score, profiles, chat and reviews) plan in [docs/PLAN-PHASE-3.md](docs/PLAN-PHASE-3.md), the layering rules in [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md), and the status and decision log in [docs/PROGRESS.md](docs/PROGRESS.md).
 
@@ -84,4 +84,12 @@ TEST_RUNNER_SCREENSHOT_DIR=/tmp/favorly-shots xcodebuild test \
   -only-testing:FavorlyUITests/ScreenshotUITests
 ```
 
-It writes `<screen>-light.png` and `<screen>-dark.png` for each of the five screens and the Nearby empty state. Copy the images you want into `docs/screenshots/`. The Phase 1 look is kept in `docs/screenshots/phase-1/`.
+It writes each screen and its main states (16 captures) four times: `<name>-light.png`, `<name>-dark.png`, `<name>-accessibility-large.png` and `<name>-accessibility-largest.png`. The first three sets are kept in `docs/screenshots/phase-2/`, and the four images above are copies from it. The Phase 1 look is kept in `docs/screenshots/phase-1/`.
+
+## App icon
+
+The icon is drawn by a script, so it can be redrawn if the brand color changes:
+
+```bash
+swift scripts/make-app-icon.swift
+```
