@@ -1,6 +1,7 @@
 import SwiftUI
 
 /// A short piece of text in a color on a soft tint of that color, such as "Open" or "Claimed by Bea".
+/// Long text wraps; it is never cut off.
 struct StatusBadge: View {
     let text: String
     let color: AdaptiveColor
@@ -9,6 +10,7 @@ struct StatusBadge: View {
         Text(text)
             .font(.caption.weight(.semibold))
             .foregroundStyle(color)
+            .fixedSize(horizontal: false, vertical: true)
             .padding(.horizontal, Theme.Spacing.medium)
             .padding(.vertical, Theme.Spacing.small)
             .background(

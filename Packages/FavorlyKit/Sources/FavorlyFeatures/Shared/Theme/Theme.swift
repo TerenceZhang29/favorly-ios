@@ -45,6 +45,8 @@ enum Theme {
         static let large: CGFloat = 56
         /// Size of the symbol as a share of the tile's side.
         static let symbolScale: CGFloat = 0.5
+        /// The most a tile grows with Dynamic Type, as a multiple of its default side.
+        static let maxScale: CGFloat = 2
     }
 
     /// Opacity of the soft background behind a colored element.

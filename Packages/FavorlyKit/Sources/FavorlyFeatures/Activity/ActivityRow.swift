@@ -6,6 +6,7 @@ struct ActivityRow: View {
     /// The status, then " · Posted by Dana" when someone else posted the request.
     let subtitle: String
     let isNew: Bool
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
     var body: some View {
         HStack(spacing: Theme.Spacing.large) {
@@ -13,20 +14,28 @@ struct ActivityRow: View {
             VStack(alignment: .leading, spacing: Theme.Spacing.small) {
                 Text(request.title)
                     .fontWeight(.semibold)
-                ViewThatFits(in: .horizontal) {
-                    HStack(spacing: Theme.Spacing.medium) { statusLine }
-                    VStack(alignment: .leading, spacing: Theme.Spacing.small) { statusLine }
+                if stacksBadges {
+                    statusLine
+                    if isNew { newBadge }
+                } else {
+                    ViewThatFits(in: .horizontal) {
+                        HStack(spacing: Theme.Spacing.medium) { statusLine }
+                        VStack(alignment: .leading, spacing: Theme.Spacing.small) { statusLine }
+                    }
                 }
             }
             Spacer(minLength: Theme.Spacing.medium)
-            if isNew {
-                TagBadge(text: "New")
-            }
+            if isNew, !stacksBadges { newBadge }
         }
         .padding(.vertical, Theme.Spacing.small)
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(spokenLabel)
     }
+
+    /// At accessibility text sizes the badges go under the title, so the title keeps the row's width.
+    private var stacksBadges: Bool { dynamicTypeSize.isAccessibilitySize }
+
+    private var newBadge: some View { TagBadge(text: "New") }
 
     @ViewBuilder
     private var statusLine: some View {

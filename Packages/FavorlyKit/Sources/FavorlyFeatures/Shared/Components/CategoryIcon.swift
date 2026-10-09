@@ -1,16 +1,21 @@
 import SwiftUI
 
-/// A symbol in its color on a rounded square tinted with the same color. Grows with Dynamic Type.
+/// A symbol in its color on a rounded square tinted with the same color. Grows with Dynamic Type, up to
+/// `Theme.IconSize.maxScale`, so the text beside it keeps most of the row at the largest text sizes.
 struct CategoryIcon: View {
     let systemImage: String
     let color: AdaptiveColor
-    @ScaledMetric private var side: CGFloat
+    private let baseSide: CGFloat
+    @ScaledMetric private var scaledSide: CGFloat
 
     init(systemImage: String, color: AdaptiveColor, isLarge: Bool = false) {
         self.systemImage = systemImage
         self.color = color
-        _side = ScaledMetric(wrappedValue: isLarge ? Theme.IconSize.large : Theme.IconSize.row)
+        baseSide = isLarge ? Theme.IconSize.large : Theme.IconSize.row
+        _scaledSide = ScaledMetric(wrappedValue: baseSide)
     }
+
+    private var side: CGFloat { min(scaledSide, baseSide * Theme.IconSize.maxScale) }
 
     var body: some View {
         Image(systemName: systemImage)

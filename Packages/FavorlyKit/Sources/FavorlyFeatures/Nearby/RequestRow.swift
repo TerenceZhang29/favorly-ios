@@ -5,6 +5,7 @@ struct RequestRow: View {
     let item: NearbyRequest
     let requesterName: String
     let isOwn: Bool
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
     var body: some View {
         HStack(spacing: Theme.Spacing.large) {
@@ -15,16 +16,20 @@ struct RequestRow: View {
                 Text("\(distanceText) · \(requesterName) · \(postedText)")
                     .font(.footnote)
                     .foregroundStyle(.secondary)
+                if isOwn, stacksBadge { ownBadge }
             }
             Spacer(minLength: Theme.Spacing.medium)
-            if isOwn {
-                TagBadge(text: "Yours")
-            }
+            if isOwn, !stacksBadge { ownBadge }
         }
         .padding(.vertical, Theme.Spacing.small)
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(spokenLabel)
     }
+
+    /// At accessibility text sizes the badge goes under the text, so the title keeps the row's width.
+    private var stacksBadge: Bool { dynamicTypeSize.isAccessibilitySize }
+
+    private var ownBadge: some View { TagBadge(text: "Yours") }
 
     private var distanceText: Text {
         Text(DistanceFormatter.miles(item.distanceMeters))
