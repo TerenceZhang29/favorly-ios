@@ -2,10 +2,13 @@ import FavorlyCore
 import SwiftUI
 
 struct RequestDetailView: View {
+    private let environment: AppEnvironment
     @State private var viewModel: RequestDetailViewModel
     @State private var isConfirmingPickUp = false
+    @State private var isShowingChat = false
 
     init(requestID: RequestID, environment: AppEnvironment) {
+        self.environment = environment
         _viewModel = State(initialValue: RequestDetailViewModel(requestID: requestID, environment: environment))
     }
 
@@ -43,6 +46,9 @@ struct RequestDetailView: View {
             Button("Not now", role: .cancel) {}
         } message: {
             Text("The requester will see that you picked it up.")
+        }
+        .navigationDestination(isPresented: $isShowingChat) {
+            ChatView(requestID: viewModel.requestID, environment: environment)
         }
         .task {
             await viewModel.load()
@@ -110,6 +116,19 @@ struct RequestDetailView: View {
                 Section {
                     ErrorBanner(message: actionError, identifier: "detail.error")
                         .plainListRow()
+                }
+                .compactSectionSpacing()
+            }
+            if viewModel.canMessage {
+                Section {
+                    Button {
+                        isShowingChat = true
+                    } label: {
+                        Label(viewModel.messageButtonTitle, systemImage: "bubble.left.and.bubble.right")
+                    }
+                    .buttonStyle(SecondaryButtonStyle())
+                    .accessibilityIdentifier("detail.message")
+                    .plainListRow()
                 }
                 .compactSectionSpacing()
             }

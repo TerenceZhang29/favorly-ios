@@ -34,12 +34,16 @@ enum Theme {
         static let large: CGFloat = 12
         static let xLarge: CGFloat = 16
         static let section: CGFloat = 24
+        /// Space kept free on the far side of a chat bubble, so the two people's messages read as two columns.
+        static let bubbleInset: CGFloat = 48
     }
 
     enum Radius {
         static let badge: CGFloat = 6
         static let tile: CGFloat = 10
         static let button: CGFloat = 12
+        /// Chat message bubbles.
+        static let bubble: CGFloat = 18
     }
 
     /// Side of a `CategoryIcon` tile at the default text size.
