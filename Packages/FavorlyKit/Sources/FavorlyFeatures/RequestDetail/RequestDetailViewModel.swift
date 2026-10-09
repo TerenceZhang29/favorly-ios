@@ -65,6 +65,18 @@ final class RequestDetailViewModel {
         allows(RequestRules.validateComplete)
     }
 
+    /// The request is picked up and the signed-in user is its requester or helper.
+    var canMessage: Bool {
+        allows(ChatRules.validateRead)
+    }
+
+    /// "Message Bea": names the other person in the thread.
+    var messageButtonTitle: String {
+        guard let request else { return "" }
+        let otherID = request.requesterID == currentUserID ? request.helperID : request.requesterID
+        return "Message \(otherID.map { environment.session.displayName(for: $0) } ?? "")"
+    }
+
     // MARK: Loading
 
     /// Loads the request. A request already on screen stays visible while it reloads.

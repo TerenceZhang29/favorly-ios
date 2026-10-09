@@ -43,6 +43,7 @@ public extension AppEnvironment {
             repository: repository,
             kindness: repository,
             reviews: repository,
+            chat: repository,
             locationProvider: PreviewLocationProvider(location: here),
             session: PreviewSessionStore(availableUsers: [alex, bea], currentUser: alex),
             locationSettings: PreviewLocationSettings(preset: LocationPreset(id: "preview-here", location: here))

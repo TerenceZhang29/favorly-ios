@@ -13,6 +13,7 @@ struct AppEnvironmentTests {
             repository: repository,
             kindness: repository,
             reviews: repository,
+            chat: repository,
             locationProvider: MockLocationProvider(settings: locationSettings),
             session: MockSessionStore(),
             locationSettings: locationSettings

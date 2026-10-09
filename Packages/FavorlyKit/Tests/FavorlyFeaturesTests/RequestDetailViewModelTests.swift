@@ -183,4 +183,32 @@ struct RequestDetailViewModelTests {
         await viewModel.complete()
         #expect(viewModel.helperScore == 28)
     }
+
+    // MARK: Chat entry point
+
+    @Test func noMessageButtonBeforePickUp() async {
+        let viewModel = await loaded(as: DemoUsers.chen)
+        #expect(!viewModel.canMessage)
+    }
+
+    @Test func requesterAndHelperCanMessageEachOther() async {
+        let asRequester = await loaded(TestWorld.ladderID, as: DemoUsers.dana)
+        #expect(asRequester.canMessage)
+        #expect(asRequester.messageButtonTitle == "Message Chen")
+
+        let asHelper = await loaded(TestWorld.ladderID, as: DemoUsers.chen)
+        #expect(asHelper.canMessage)
+        #expect(asHelper.messageButtonTitle == "Message Dana")
+    }
+
+    @Test func othersCannotMessage() async {
+        let viewModel = await loaded(TestWorld.ladderID, as: DemoUsers.alex)
+        #expect(!viewModel.canMessage)
+    }
+
+    @Test func aCompletedRequestStillOpensItsThread() async {
+        let viewModel = await loaded(TestWorld.seedID(12), as: DemoUsers.dana)
+        #expect(viewModel.canMessage)
+        #expect(viewModel.messageButtonTitle == "Message Bea")
+    }
 }

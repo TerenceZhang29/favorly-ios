@@ -25,6 +25,7 @@ struct TestWorld {
             repository: repository,
             kindness: repository,
             reviews: repository,
+            chat: repository,
             locationProvider: MockLocationProvider(settings: locationSettings),
             session: session,
             locationSettings: locationSettings
