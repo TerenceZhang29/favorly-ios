@@ -14,7 +14,7 @@ struct CategoryIcon: View {
 
     var body: some View {
         Image(systemName: systemImage)
-            .font(.system(size: side / 2, weight: .medium))
+            .font(.system(size: side * Theme.IconSize.symbolScale, weight: .medium))
             .foregroundStyle(color)
             .frame(width: side, height: side)
             .background(

@@ -99,7 +99,7 @@ struct RequestDetailView: View {
         Group {
             if let actionError = viewModel.actionError {
                 Section {
-                    errorBanner(actionError)
+                    ErrorBanner(message: actionError, identifier: "detail.error")
                         .plainListRow()
                 }
                 .compactSectionSpacing()
@@ -137,23 +137,6 @@ struct RequestDetailView: View {
             }
         }
         .disabled(viewModel.isWorking)
-    }
-
-    private func errorBanner(_ message: String) -> some View {
-        Label {
-            Text(message)
-                .accessibilityIdentifier("detail.error")
-        } icon: {
-            Image(systemName: "exclamationmark.triangle.fill")
-                .accessibilityHidden(true)
-        }
-        .foregroundStyle(Theme.Colors.statusCancelled)
-        .padding(Theme.Spacing.xLarge)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(
-            Theme.Colors.statusCancelled.opacity(Theme.tintOpacity),
-            in: RoundedRectangle(cornerRadius: Theme.Radius.button, style: .continuous)
-        )
     }
 
     private func fact(_ label: String, _ value: String, id: String, systemImage: String) -> some View {

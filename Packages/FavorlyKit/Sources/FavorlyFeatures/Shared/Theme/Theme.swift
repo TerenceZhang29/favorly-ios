@@ -43,6 +43,8 @@ enum Theme {
     enum IconSize {
         static let row: CGFloat = 36
         static let large: CGFloat = 56
+        /// Size of the symbol as a share of the tile's side.
+        static let symbolScale: CGFloat = 0.5
     }
 
     /// Opacity of the soft background behind a colored element.

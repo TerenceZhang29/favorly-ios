@@ -17,7 +17,7 @@ struct FactRow: View {
                     .frame(width: symbolWidth)
             }
             if dynamicTypeSize.isAccessibilitySize {
-                VStack(alignment: .leading, spacing: 2) {
+                VStack(alignment: .leading, spacing: Theme.Spacing.small) {
                     Text(label)
                     Text(value)
                         .foregroundStyle(.secondary)
