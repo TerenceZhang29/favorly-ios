@@ -2,8 +2,8 @@
 
 Updated by every coding session. Read this after `docs/PLAN.md`, `docs/PLAN-PHASE-2.md` and `docs/PLAN-PHASE-3.md`, and continue from the first unchecked item.
 
-**Current phase:** Phase 2 (UI refresh). 2A, 2B and 2C are done; 2D is next. Phase 3 (Kindness score, profiles, chat and reviews) is planned and starts after 2D. Phase 1 is complete (`v0.1.0-prototype`)
-**Next task:** Start 2D on `phase/2d-polish`: consistency and accessibility passes, app icon, version `0.2.0`, README and architecture docs, tag `v0.2.0-ui`. Still open from Phase 1: run the demo script in the README by hand once
+**Current phase:** Phase 2 (UI refresh) is complete (`v0.2.0-ui`). Phase 3 (Kindness score, profiles, chat and reviews) is next. Phase 1 is complete (`v0.1.0-prototype`)
+**Next task:** Start 3A on `phase/3a-kindness-core`. Still open for a person: run the demo script in the README by hand once, in light and in dark mode, and look over the final screenshots in `docs/screenshots/phase-2/`
 
 ## Phase checklist
 
@@ -20,7 +20,7 @@ Phase 2, UI refresh ([PLAN-PHASE-2.md](PLAN-PHASE-2.md)):
 - [x] **2A.** Theme and shared components, "before" screenshots
 - [x] **2B.** Nearby and Request Detail, then the review gate
 - [x] **2C.** Post, My Activity and Dev Settings
-- [ ] **2D.** Polish, app icon, docs, tag `v0.2.0-ui`
+- [x] **2D.** Polish, app icon, docs, tag `v0.2.0-ui`
 
 Phase 3, Kindness score, profiles, chat and reviews ([PLAN-PHASE-3.md](PLAN-PHASE-3.md)):
 
@@ -96,6 +96,13 @@ One row per commit, oldest first, grouped by phase. Every session adds its commi
 | 2C | `74d334e` | feat(activity): restyle rows with icon and badges, highlighted new row and empty states |
 | 2C | `5675fd9` | feat(dev-settings): red reset button and gray prototype note |
 | 2C | `251e302` | test(ui): capture Post, My Activity and Dev Settings states, refresh Phase 2 screenshots |
+| 2C | `b1a8422` | docs: record phase 2C progress |
+| Phase 3 plan | `0445bd6` | docs: add Phase 3 plan for Kindness score, profiles, chat and reviews |
+| 2D | `b5ea2d5` | refactor(theme): move the error banner into a shared component, remove the last style literals |
+| 2D | `9b9d3a2` | feat(app): app icon drawn by a script, version 0.2.0 |
+| 2D | `d8c5de2` | fix(a11y): keep rows readable at the largest text size |
+| 2D | `e060b15` | style: apply SwiftFormat and wrap a long comment |
+| 2D | `1d87308` | docs: README with Phase 2 screenshots and a dark one, Theme section in the architecture notes |
 
 ## Confirmed decisions
 
@@ -201,6 +208,14 @@ Add entries as `YYYY-MM-DD · phase · decision · reason`.
 - 2026-10-08 · 2C · The Post submit error is its own section above the button, and the Category section has no header · the button row has no card, so the error needs one; adding a "Category" header would add a visible string
 - 2026-10-08 · 2C · Dev Settings keeps the system section headers and its footer; only the checkmarks (brand color, semibold) and the Reset button changed · the plan asks for it to stay the plainest screen
 - 2026-10-08 · 2C · `docs/screenshots/phase-2/` now holds the full set: 16 captures in light, dark and `accessibility-large` (48 images, 11 MB) · replaces the 2B subset
+- 2026-10-09 · 2D · Consistency pass: the Request Detail error banner became the shared `ErrorBanner`, `FactRow`'s stacked spacing uses `Theme.Spacing.small` (4, was a literal 2), and the icon's symbol size uses the new `Theme.IconSize.symbolScale` (0.5) · no screen file now holds a shape, a color or a number for style. System colors (`.primary`, `.secondary`) stay, as the plan allows
+- 2026-10-09 · 2D · `CategoryIcon` grows with text size only up to `Theme.IconSize.maxScale` (2×) · at the largest accessibility size the icon took so much of the row that titles broke one word per line. The `accessibility-large` look is unchanged, since it is just under the cap
+- 2026-10-09 · 2D · At accessibility text sizes the "Yours" and "New" badges sit under the row's text, not beside it, and My Activity always stacks its status line · beside the text they squeezed the title into mid-word breaks ("Nee/d a"). Spoken labels and identifiers are unchanged
+- 2026-10-09 · 2D · `StatusBadge` text always wraps and is never cut off · "Claimed by Bea" was truncated to "Claime…" at the largest text size
+- 2026-10-09 · 2D · `ScreenshotUITests` has a fourth test at the largest text size (`accessibility-largest`, `AccessibilityXXXL`); it scrolls to rows that are off screen at that size and no longer requires elements that sit below the fold · the plan asks for every screen at the largest size. Those 16 images were checked by eye and are not committed, to keep the repo small
+- 2026-10-09 · 2D · Increase Contrast and Reduce Transparency were checked by running the light screenshot test with the simulator setting on (`xcrun simctl ui <device> increase_contrast enabled`; `defaults write com.apple.Accessibility EnhancedBackgroundContrastEnabled` inside the simulator) · nothing clipped, overlapped or lost its meaning. Theme colors do not change with Increase Contrast; they already pass 4.5:1, and system text and bars adapt on their own
+- 2026-10-09 · 2D · The app icon is `hand.raised.fill` in white, 56% of the icon's height, on the light brand color, drawn by `scripts/make-app-icon.swift` with AppKit; one 1024×1024 image with no transparency, no separate dark or tinted variants · the plan asks for a script so it can be redrawn; the system derives the other appearances
+- 2026-10-09 · 2D · The README shows three light screenshots and one dark (Nearby), copied from `docs/screenshots/phase-2/`, which was regenerated at the end of 2D · the plan asks for light screenshots and one dark
 - 2026-10-09 · Phase 3 plan · The Phase 3 plan is its own file, `docs/PLAN-PHASE-3.md`, with five phases 3A–3E; Kindness score and Profile come first (3A, 3B), then chat and reviews · the owner set those two as priorities 1 and 2
 - 2026-10-09 · Phase 3 plan · Kindness score: 10 points to the helper per completed request plus 2 per review star; only helping earns points · owner's choice
 - 2026-10-09 · Phase 3 plan · Gift card: progress toward 100 points plus a fake Redeem that deducts the points and shows a reward code; the lifetime score never drops · owner's choice
@@ -219,7 +234,10 @@ Add entries as `YYYY-MM-DD · phase · decision · reason`.
 - The plan asks for the demo script to be run by hand in light and dark at the end of 2C. An agent cannot; `DemoFlowUITests` ran it in light mode, and the screenshot test walks most of it in dark mode.
 - At accessibility text sizes the Post location text wraps under its pin icon. That is how the system lays out a `Label` in a list at those sizes.
 - Not seen on screen, because no test flow produces them: the Post submit error, the Post location error, and the My Activity load error.
-- `FactRow` still has one literal (`spacing: 2`) for 2D's consistency pass.
+- At the largest accessibility text size the Post title field cuts a long title with "…" while it is not being edited, and the tab bar labels stay small. Both are how the system controls behave.
+- The app icon has only been seen as the generated image and through a successful build, not on a Home Screen.
+- Increase Contrast and Reduce Transparency were checked in light mode only.
+- `ScreenshotUITests` takes about four minutes for its four passes. It is skipped in CI and in normal runs, where no screenshot folder is set.
 - In `ScreenshotUITests`, wait for something near the top of the screen before a capture: at the large text size, rows below the fold do not exist yet and a wait on them fails.
 - If dark-mode screenshots come out light, the simulator is stuck: `xcrun simctl shutdown` and `boot` it. This happened once on the iPhone 17 simulator, where even Settings stayed light.
 - CI does not run SwiftLint or SwiftFormat; run them locally before pushing.
@@ -234,7 +252,7 @@ Add entries as `YYYY-MM-DD · phase · decision · reason`.
 - Phase 3: are 10 points per favor, 2 per star and 100 points for a "$5" gift card the right values? Default: yes, as placeholders in `KindnessRules`.
 - Phase 3: should chat stay open for sending after a request is completed? Default: no, the thread becomes read-only.
 - Phase 3: what does someone else's profile show? Default: completed requests only, never gift-card progress or reward codes.
-- Should 2D finish before 3A? Default: yes. If features go first, 2D's consistency pass runs after 3E and covers the new screens.
+- Should 2D finish before 3A? Resolved 2026-10-09: yes, 2D was done first.
 - Review gate after 2B. Resolved 2026-10-08: the repo owner looked at the Nearby and Request Detail screenshots and approved them as they are (teal brand, rounded-rectangle badges, pill-shaped action buttons). No palette or component changes were requested.
 - Phase 2: is teal the right brand color, and who approves the look at the review gate after 2B? Defaults: teal, and the repo owner.
 - 1B through 1G were each branched from the previous phase branch because the earlier pull requests were not merged yet. Resolved: no pull requests; `main` was fast-forwarded to the last phase branch, which contains the earlier ones.
@@ -244,6 +262,7 @@ Add entries as `YYYY-MM-DD · phase · decision · reason`.
 
 Newest first, one line per session: `YYYY-MM-DD · phase · what was done · next step`.
 
+- 2026-10-09 · 2D · Consistency pass (no style literals left outside `Theme`), accessibility pass at the largest text size, with Increase Contrast and with Reduce Transparency (three row layout fixes), app icon and its script, version `0.2.0`, README and architecture docs, refreshed screenshots; 138 package tests and 12 UI tests pass, the four behavior classes unedited; Core, Data, view model and existing test diff is empty; SwiftLint and SwiftFormat clean; tagged `v0.2.0-ui` · start 3A on `phase/3a-kindness-core`
 - 2026-10-09 · Phase 3 plan · Wrote `docs/PLAN-PHASE-3.md` (Kindness score, profiles, chat and reviews in five phases, 3A–3E), added the Phase 3 checklist, decisions and open questions here, updated `CLAUDE.md` and the README to point at it; no code changed · finish 2D on `phase/2d-polish`, then start 3A on `phase/3a-kindness-core`
 - 2026-10-08 · 2C · Review gate passed with no changes. `PostRequestView`, `ActivityRow`, `ActivityView` and `DevSettingsView` restyled; every screen now uses the theme; screenshots in light, dark and `accessibility-large` checked by eye; 138 package tests (1 new) and the four behavior UI test classes pass unedited; Core, Data and view model diff is empty · start 2D on `phase/2d-polish`
 - 2026-10-08 · 2B · `RequestRow`, `NearbyView` and `RequestDetailView` restyled; screenshots in light, dark and `accessibility-large` checked by eye; 137 package tests and the four behavior UI test classes pass unedited; Core, Data and view model diff is empty · hold the review gate, then start 2C
