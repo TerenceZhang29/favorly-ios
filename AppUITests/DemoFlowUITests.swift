@@ -214,13 +214,16 @@ final class DemoFlowUITests: UITestCase {
         waitFor(element("profile.giftCardProgress"), toRead: "10 of 100 points")
 
         let favor = row("profile.activity.", containing: "Need a cup of rice, Ingredient, Helped")
+        for _ in 0 ..< 4 where !(favor.exists && favor.isHittable) {
+            app.swipeUp()
+        }
+        XCTAssertTrue(favor.exists)
         let review = app.descendants(matching: .any).matching(NSPredicate(
             format: "identifier BEGINSWITH %@ AND label CONTAINS %@", "profile.review.", "from Alex"
         )).firstMatch
         for _ in 0 ..< 6 where !(review.exists && review.isHittable) {
             app.swipeUp()
         }
-        XCTAssertTrue(favor.exists)
         XCTAssertTrue(review.label.hasSuffix(": Fast and friendly"))
     }
 
