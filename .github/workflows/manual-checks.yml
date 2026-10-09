@@ -1,8 +1,15 @@
 name: Manual checks
 
-# Run by hand from the Actions tab (or the API) on any branch. Lint is what a contributor runs locally;
-# screenshots regenerate the ScreenshotUITests captures and upload them as an artifact for a by-eye check.
+concurrency:
+  group: checks-${{ github.ref }}
+  cancel-in-progress: true
+
+# Lint is what a contributor runs locally; screenshots regenerate the ScreenshotUITests captures and upload them as
+# an artifact for a by-eye check. Runs by hand, or on a push to a `claude/**` branch (agent sessions that cannot run
+# Xcode); there, screenshots run only when the head commit message contains "[screenshots]".
 on:
+  push:
+    branches: ["claude/**"]
   workflow_dispatch:
     inputs:
       screenshots:
@@ -26,7 +33,7 @@ jobs:
 
   screenshots:
     name: Screenshots (ScreenshotUITests)
-    if: ${{ inputs.screenshots }}
+    if: ${{ inputs.screenshots || contains(github.event.head_commit.message, '[screenshots]') }}
     runs-on: macos-26
     timeout-minutes: 60
     steps:
