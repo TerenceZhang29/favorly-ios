@@ -105,8 +105,7 @@ struct RequestDetailView: View {
                 viewModel.isOwn ? "\(viewModel.requesterName) (you)" : viewModel.requesterName,
                 id: "requester",
                 systemImage: "person",
-                userID: request.requesterID,
-                score: viewModel.requesterScore
+                user: (request.requesterID, viewModel.requesterScore)
             )
             fact("Status", viewModel.statusText, id: "status", systemImage: "checkmark.seal")
             if let helperID = request.helperID, let helperName = viewModel.helperName {
@@ -115,8 +114,7 @@ struct RequestDetailView: View {
                     helperName,
                     id: "helper",
                     systemImage: "hands.sparkles",
-                    userID: helperID,
-                    score: viewModel.helperScore
+                    user: (helperID, viewModel.helperScore)
                 )
             }
         }
@@ -223,10 +221,10 @@ struct RequestDetailView: View {
         _ name: String,
         id: String,
         systemImage: String,
-        userID: UserID,
-        score: Int?
+        user: (id: UserID, score: Int?)
     ) -> some View {
-        NavigationLink(value: userID) {
+        let score = user.score
+        return NavigationLink(value: user.id) {
             HStack(spacing: Theme.Spacing.medium) {
                 FactRow(label: label, value: name, systemImage: systemImage)
                 if let score {
