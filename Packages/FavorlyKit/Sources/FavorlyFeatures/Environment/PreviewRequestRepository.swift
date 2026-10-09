@@ -1,8 +1,9 @@
 import FavorlyCore
 
-/// A read-only repository over fixed requests. Every write throws `notAllowed`.
+/// A read-only repository over fixed requests and reviews. Every write throws `notAllowed`.
 struct PreviewRequestRepository: RequestRepository {
     let requests: [HelpRequest]
+    var reviews: [Review] = []
 
     func nearby(around point: GeoPoint, radiusMeters: Double) async throws -> [NearbyRequest] {
         requests

@@ -8,8 +8,11 @@ import Testing
 struct AppEnvironmentTests {
     private func makeEnvironment() -> AppEnvironment {
         let locationSettings = MockLocationSettings()
+        let repository = MockRequestRepository(artificialDelay: .zero)
         return AppEnvironment(
-            repository: MockRequestRepository(artificialDelay: .zero),
+            repository: repository,
+            kindness: repository,
+            reviews: repository,
             locationProvider: MockLocationProvider(settings: locationSettings),
             session: MockSessionStore(),
             locationSettings: locationSettings

@@ -11,13 +11,20 @@ struct TestWorld {
     static let riceID = seedID(2)
     static let ladderID = seedID(6)
 
-    let repository = MockRequestRepository(seed: { DemoRequests.all(now: now) }, artificialDelay: .zero, now: { now })
+    let repository = MockRequestRepository(
+        seed: { DemoRequests.all(now: now) },
+        reviewSeed: { DemoReviews.all(now: now) },
+        artificialDelay: .zero,
+        now: { now }
+    )
     let session = MockSessionStore()
     let locationSettings = MockLocationSettings()
 
     var environment: AppEnvironment {
         AppEnvironment(
             repository: repository,
+            kindness: repository,
+            reviews: repository,
             locationProvider: MockLocationProvider(settings: locationSettings),
             session: session,
             locationSettings: locationSettings

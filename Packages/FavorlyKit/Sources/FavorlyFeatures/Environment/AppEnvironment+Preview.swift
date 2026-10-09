@@ -38,8 +38,11 @@ public extension AppEnvironment {
                 createdAt: Date().addingTimeInterval(-1200)
             ),
         ]
+        let repository = PreviewRequestRepository(requests: requests)
         return AppEnvironment(
-            repository: PreviewRequestRepository(requests: requests),
+            repository: repository,
+            kindness: repository,
+            reviews: repository,
             locationProvider: PreviewLocationProvider(location: here),
             session: PreviewSessionStore(availableUsers: [alex, bea], currentUser: alex),
             locationSettings: PreviewLocationSettings(preset: LocationPreset(id: "preview-here", location: here))
