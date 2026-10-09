@@ -6,6 +6,7 @@ struct RequestDetailView: View {
     @State private var viewModel: RequestDetailViewModel
     @State private var isConfirmingPickUp = false
     @State private var isShowingChat = false
+    @State private var isReviewing = false
 
     init(requestID: RequestID, environment: AppEnvironment) {
         self.environment = environment
@@ -24,6 +25,9 @@ struct RequestDetailView: View {
             case let .loaded(request):
                 summary(of: request)
                 facts(of: request)
+                if let review = viewModel.review {
+                    reviewSection(review)
+                }
                 actions
             case let .failed(message):
                 MessageView(
@@ -49,6 +53,15 @@ struct RequestDetailView: View {
         }
         .navigationDestination(isPresented: $isShowingChat) {
             ChatView(requestID: viewModel.requestID, environment: environment)
+        }
+        .sheet(isPresented: $isReviewing) {
+            ReviewFormView(
+                requestID: viewModel.requestID,
+                helperName: viewModel.helperName ?? "",
+                environment: environment
+            ) { _ in
+                Task { await viewModel.load() }
+            }
         }
         .task {
             await viewModel.load()
@@ -132,6 +145,19 @@ struct RequestDetailView: View {
                 }
                 .compactSectionSpacing()
             }
+            if viewModel.canReview {
+                Section {
+                    Button {
+                        isReviewing = true
+                    } label: {
+                        Label("Leave a review", systemImage: "star")
+                    }
+                    .buttonStyle(PrimaryButtonStyle())
+                    .accessibilityIdentifier("detail.review")
+                    .plainListRow()
+                }
+                .compactSectionSpacing()
+            }
             if viewModel.canPickUp {
                 Section {
                     Button("Pick up") { isConfirmingPickUp = true }
@@ -165,6 +191,29 @@ struct RequestDetailView: View {
             }
         }
         .disabled(viewModel.isWorking)
+    }
+
+    /// The requester's review of the helper, shown once it exists.
+    private func reviewSection(_ review: Review) -> some View {
+        Section {
+            VStack(alignment: .leading, spacing: Theme.Spacing.small) {
+                StarRating(rating: review.rating)
+                if !review.comment.isEmpty {
+                    Text(review.comment)
+                }
+            }
+            .padding(.vertical, Theme.Spacing.small)
+            .accessibilityElement(children: .ignore)
+            .accessibilityLabel(viewModel.reviewTitle)
+            .accessibilityValue(
+                review.comment.isEmpty
+                    ? "\(review.rating) out of \(ReviewRules.ratingRange.upperBound) stars"
+                    : "\(review.rating) out of \(ReviewRules.ratingRange.upperBound) stars: \(review.comment)"
+            )
+            .accessibilityIdentifier("detail.reviewSummary")
+        } header: {
+            SectionHeader(text: viewModel.reviewTitle)
+        }
     }
 
     /// A requester or helper row with their Kindness score. Tapping it opens their profile.

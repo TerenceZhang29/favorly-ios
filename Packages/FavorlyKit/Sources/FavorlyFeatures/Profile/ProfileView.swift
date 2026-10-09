@@ -29,6 +29,7 @@ struct ProfileView: View {
                     giftCard(redemptions)
                 }
                 activities(content.activities)
+                reviews(content.reviews)
             case let .failed(message):
                 MessageView(
                     systemImage: "exclamationmark.triangle",
@@ -94,6 +95,27 @@ struct ProfileView: View {
             ) {
                 Task { await viewModel.redeem() }
             }
+        }
+    }
+
+    private func reviews(_ reviews: [Review]) -> some View {
+        Section {
+            if reviews.isEmpty {
+                Text("No reviews yet")
+                    .foregroundStyle(.secondary)
+                    .accessibilityIdentifier("profile.reviewsEmpty")
+            }
+            ForEach(reviews) { review in
+                ReviewRow(
+                    rating: review.rating,
+                    comment: review.comment,
+                    reviewerName: viewModel.displayName(for: review.reviewerID),
+                    dateText: review.createdAt.formatted(.dateTime.month(.abbreviated).day())
+                )
+                .accessibilityIdentifier("profile.review.\(review.id.rawValue.uuidString)")
+            }
+        } header: {
+            SectionHeader(text: "Reviews")
         }
     }
 
