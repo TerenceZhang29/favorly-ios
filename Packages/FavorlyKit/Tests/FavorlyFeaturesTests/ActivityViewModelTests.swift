@@ -35,14 +35,14 @@ struct ActivityViewModelTests {
 
     @Test func segmentsListTheRightItemsPerUser() async {
         let chenPosted = await items(.posted, as: DemoUsers.chen)
-        #expect(chenPosted.count == 4)
+        #expect(chenPosted.count == 6)
         #expect(chenPosted.allSatisfy { $0.requesterID == DemoUsers.chen.id })
-        #expect(await items(.pickedUp, as: DemoUsers.chen).map(\.id) == [TestWorld.ladderID])
+        #expect(await items(.pickedUp, as: DemoUsers.chen).map(\.id) == [TestWorld.ladderID, TestWorld.seedID(17)])
 
         let beaPosted = await items(.posted, as: DemoUsers.bea)
-        #expect(beaPosted.count == 3)
+        #expect(beaPosted.count == 4)
         #expect(beaPosted.allSatisfy { $0.requesterID == DemoUsers.bea.id })
-        #expect(await items(.pickedUp, as: DemoUsers.bea).map(\.status) == [.completed])
+        #expect(await items(.pickedUp, as: DemoUsers.bea).map(\.status) == Array(repeating: .completed, count: 5))
     }
 
     @Test func myRequestsAreNewestFirst() async {
@@ -96,6 +96,6 @@ struct ActivityViewModelTests {
         await viewModel.load()
         viewModel.segment = .pickedUp
         #expect(viewModel.items?.first?.id == TestWorld.eggsID)
-        #expect(viewModel.items?.count == 2)
+        #expect(viewModel.items?.count == 6)
     }
 }

@@ -4,7 +4,8 @@ import Foundation
 public enum DemoRequests {
     /// The seed set: fixed IDs, timestamps relative to `now`, and none posted by Alex.
     ///
-    /// Six are within 0.5 mi of Cornell Tech, three at 0.5–1.5 mi and three over 3 mi.
+    /// The first twelve are the Phase 1 set: six within 0.5 mi of Cornell Tech, three at 0.5–1.5 mi and three over
+    /// 3 mi. Seeds 13–17 are favors completed days ago, so profiles have a history; none of them involve Alex.
     public static func all(now: Date = Date()) -> [HelpRequest] {
         let bea = DemoUsers.bea.id
         let chen = DemoUsers.chen.id
@@ -40,8 +41,28 @@ public enum DemoRequests {
                  "Flushing", 40.7675, -73.8331, minutesAgo: 150),
             Seed(12, "Need a pinch of saffron", "For a paella, a few threads is plenty.", .ingredient, dana,
                  "Downtown Brooklyn", 40.6929, -73.9857, minutesAgo: 240, status: .completed, helper: bea),
+
+            // History: completed days ago, with reviews in `DemoReviews`
+            Seed(13, "Water my plants for the weekend", "Six pots on the balcony.", .errand, chen,
+                 "Long Island City", 40.7440, -73.9490, minutesAgo: 3 * day, status: .completed, helper: bea),
+            Seed(14, "Carry groceries up to the 4th floor", "The elevator is out again.", .movingHelp, dana,
+                 "Midtown East", 40.7545, -73.9690, minutesAgo: 4 * day, status: .completed, helper: bea),
+            Seed(15, "Borrow a cordless drill", "Hanging two shelves.", .other, chen,
+                 "Long Island City", 40.7452, -73.9478, minutesAgo: 5 * day, status: .completed, helper: bea),
+            Seed(16, "Need a cup of sugar", "Halfway through a batch of cookies.", .ingredient, dana,
+                 "Midtown East", 40.7560, -73.9675, minutesAgo: 6 * day, status: .completed, helper: bea),
+            Seed(17, "Tire pressure check before a road trip", "I have a gauge but no pump.", .carHelp, bea,
+                 "Roosevelt Island", 40.7590, -73.9530, minutesAgo: 2 * day, status: .completed, helper: chen),
         ].map { $0.request(now: now) }
     }
+
+    /// The fixed ID of seed request `number` (1–17).
+    public static func id(_ number: UInt8) -> RequestID {
+        RequestID(rawValue: UUID(uuid: (0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, number)))
+    }
+
+    /// Minutes in a day.
+    private static let day: Double = 24 * 60
 
     private struct Seed {
         let number: UInt8
@@ -85,7 +106,7 @@ public enum DemoRequests {
         func request(now: Date) -> HelpRequest {
             let createdAt = now.addingTimeInterval(-minutesAgo * 60)
             return HelpRequest(
-                id: RequestID(rawValue: UUID(uuid: (0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, number))),
+                id: DemoRequests.id(number),
                 title: title,
                 details: details,
                 category: category,

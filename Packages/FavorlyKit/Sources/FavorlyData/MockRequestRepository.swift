@@ -1,26 +1,36 @@
 import FavorlyCore
 import Foundation
 
+/// The one in-memory store behind every repository protocol. Its conformances to the Phase 3 protocols live in
+/// `MockRequestRepository+<Feature>.swift`, so the state they share is internal rather than private.
 public actor MockRequestRepository: RequestRepository {
     private let seed: @Sendable () -> [HelpRequest]
+    private let reviewSeed: @Sendable () -> [Review]
     private let artificialDelay: Duration
-    private let now: @Sendable () -> Date
-    private let broadcaster = ChangeBroadcaster()
-    private var requests: [RequestID: HelpRequest]
+    let now: @Sendable () -> Date
+    let broadcaster = ChangeBroadcaster()
+    var requests: [RequestID: HelpRequest]
+    var reviews: [Review]
+    /// Oldest first, across all users.
+    var redemptions: [Redemption] = []
 
     /// - Parameters:
-    ///   - seed: Builds the starting data, and again on every `reset()`.
+    ///   - seed: Builds the starting requests, and again on every `reset()`.
+    ///   - reviewSeed: Builds the starting reviews, and again on every `reset()`.
     ///   - artificialDelay: Wait before each read or write, so loading states are visible.
-    ///   - now: The clock used for `createdAt` and `claimedAt`.
+    ///   - now: The clock used for `createdAt`, `claimedAt` and the time of a redemption.
     public init(
         seed: @escaping @Sendable () -> [HelpRequest] = { DemoRequests.all() },
+        reviewSeed: @escaping @Sendable () -> [Review] = { DemoReviews.all() },
         artificialDelay: Duration = .milliseconds(300),
         now: @escaping @Sendable () -> Date = { Date() }
     ) {
         self.seed = seed
+        self.reviewSeed = reviewSeed
         self.artificialDelay = artificialDelay
         self.now = now
         requests = Self.indexed(seed())
+        reviews = reviewSeed()
     }
 
     // MARK: Reads
@@ -106,8 +116,11 @@ public actor MockRequestRepository: RequestRepository {
         broadcaster.stream()
     }
 
+    /// Restores requests and reviews to the seed and removes every redemption.
     public func reset() async {
         requests = Self.indexed(seed())
+        reviews = reviewSeed()
+        redemptions = []
         broadcaster.send()
     }
 
@@ -123,7 +136,7 @@ public actor MockRequestRepository: RequestRepository {
         return request
     }
 
-    private func simulateLatency() async throws {
+    func simulateLatency() async throws {
         guard artificialDelay > .zero else { return }
         try await Task.sleep(for: artificialDelay)
     }

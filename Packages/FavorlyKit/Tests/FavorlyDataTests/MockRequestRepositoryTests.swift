@@ -77,15 +77,15 @@ struct MockRequestRepositoryTests {
     @Test func requestsPostedByAUserAreNewestFirst() async throws {
         #expect(try await repository.requests(postedBy: alex).isEmpty)
         let posted = try await repository.requests(postedBy: chen)
-        #expect(posted.count == 4)
+        #expect(posted.count == 6)
         #expect(posted.allSatisfy { $0.requesterID == chen })
         #expect(posted.map(\.createdAt) == posted.map(\.createdAt).sorted(by: >))
     }
 
     @Test func requestsClaimedByAUserIncludeFinishedOnes() async throws {
         #expect(try await repository.requests(claimedBy: alex).isEmpty)
-        #expect(try await repository.requests(claimedBy: chen).map(\.status) == [.claimed])
-        #expect(try await repository.requests(claimedBy: bea).map(\.status) == [.completed])
+        #expect(try await repository.requests(claimedBy: chen).map(\.status) == [.claimed, .completed])
+        #expect(try await repository.requests(claimedBy: bea).map(\.status) == Array(repeating: .completed, count: 5))
     }
 
     // MARK: create
