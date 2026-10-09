@@ -65,6 +65,7 @@ final class ScreenshotUITests: UITestCase {
         try beaPicksItUp()
         try alexSeesItClaimed()
         try farAwayAndLocationError()
+        try danaReviewsBea()
     }
 
     @MainActor
@@ -123,6 +124,15 @@ final class ScreenshotUITests: UITestCase {
         // Mark completed can be below the fold at the largest text size, so it is given a moment but not required.
         _ = app.buttons["detail.complete"].waitForExistence(timeout: Self.shortWait)
         try capture("request-detail")
+        scrollToAndTap(app.buttons["detail.message"])
+        XCTAssertTrue(element("chat.input").waitForExistence(timeout: Self.waitTimeout))
+        try capture("chat-empty")
+        element("chat.input").tap()
+        app.typeText("On my way")
+        app.buttons["chat.send"].tap()
+        _ = element("chat.empty").waitForNonExistence(timeout: Self.waitTimeout)
+        try capture("chat")
+        app.navigationBars.buttons.firstMatch.tap()
 
         openTab("My Activity")
         app.segmentedControls["activity.segment"].buttons["Picked up by me"].tap()
@@ -169,6 +179,29 @@ final class ScreenshotUITests: UITestCase {
         openTab("Dev Settings")
         app.swipeUp()
         try capture("dev-settings-bottom")
+    }
+
+    @MainActor
+    private func danaReviewsBea() throws {
+        chooseUser("user-dana")
+        openTab("My Activity")
+        let saffron = row("activity.row.", containing: "Need a pinch of saffron")
+        XCTAssertTrue(saffron.waitForExistence(timeout: Self.waitTimeout))
+        saffron.tap()
+        scrollToAndTap(app.buttons["detail.review"])
+        XCTAssertTrue(app.buttons["review.star.5"].waitForExistence(timeout: Self.waitTimeout))
+        try capture("review-form-empty")
+        app.buttons["review.star.5"].tap()
+        element("review.comment").tap()
+        app.typeText("Fast and friendly")
+        try capture("review-form")
+        app.buttons["review.submit"].tap()
+        XCTAssertTrue(element("detail.reviewSummary").waitForExistence(timeout: Self.waitTimeout))
+        try capture("request-detail-reviewed")
+        scrollToAndTap(element("detail.helper"))
+        waitFor(element("profile.name"), toRead: "Bea")
+        app.swipeUp()
+        try capture("profile-reviews")
     }
 
     /// Switches user from Dev Settings. At the largest text size the row can be off screen in either direction.

@@ -1,6 +1,7 @@
 import XCTest
 
 /// The demo script in docs/PLAN.md, which is Flow 1 end to end: Alex posts, Bea picks up, Alex sees the claim.
+/// `testExtendedDemoScript` runs the Phase 3 script: profiles, chat, a review and a gift card.
 final class DemoFlowUITests: UITestCase {
     @MainActor private var count: XCUIElement { element("nearby.count") }
 
@@ -109,6 +110,158 @@ final class DemoFlowUITests: UITestCase {
         reset.tap()
         openTab("My Activity")
         waitFor(element("activity.empty"), toRead: "You haven't posted any requests yet.")
+    }
+
+    // MARK: Phase 3 extended demo script (docs/PLAN-PHASE-3.md)
+
+    @MainActor
+    func testExtendedDemoScript() {
+        launchApp()
+        alexStartsAtZero()
+        alexPostsAndBeaHas90()
+        beaPicksUpAndTheyChat()
+        alexReviewsBea()
+        beaRedeemsAGiftCard()
+        chenSeesBeasPublicProfile()
+    }
+
+    /// Step 1: Alex's Profile shows a score of 0 and "No activity yet".
+    @MainActor
+    private func alexStartsAtZero() {
+        openTab("Profile")
+        waitFor(element("profile.name"), toRead: "Alex")
+        waitFor(element("profile.score"), toRead: "0 points")
+        let empty = element("profile.empty")
+        for _ in 0 ..< 4 where !(empty.exists && empty.isHittable) {
+            app.swipeUp()
+        }
+        waitFor(empty, toRead: "No activity yet")
+    }
+
+    /// Step 2: Alex posts "Need a cup of rice". Bea's Profile shows 90 points and "90 of 100 points".
+    @MainActor
+    private func alexPostsAndBeaHas90() {
+        openTab("Post")
+        waitFor(element("post.location"), toRead: "Tagged at Cornell Tech, Roosevelt Island")
+        app.textFields["post.title"].tap()
+        app.typeText("Need a cup of rice\n")
+        app.buttons["post.category"].tap()
+        app.buttons["Ingredient"].tap()
+        app.buttons["post.submit"].tap()
+        XCTAssertTrue(row("activity.row.", containing: "Need a cup of rice")
+            .waitForExistence(timeout: Self.waitTimeout))
+
+        switchUser(to: "user-bea")
+        openTab("Profile")
+        waitFor(element("profile.name"), toRead: "Bea")
+        waitFor(element("profile.score"), toRead: "90 points")
+        waitFor(element("profile.giftCardProgress"), toRead: "90 of 100 points")
+    }
+
+    /// Step 3: Bea picks up the request and says "On my way"; Alex replies and marks it completed.
+    @MainActor
+    private func beaPicksUpAndTheyChat() {
+        openTab("Nearby")
+        let rice = row("nearby.row.", containing: "Need a cup of rice")
+        XCTAssertTrue(rice.waitForExistence(timeout: Self.waitTimeout))
+        rice.tap()
+        app.buttons["detail.pickUp"].tap()
+        app.buttons["Confirm pick up"].tap()
+        waitFor(element("detail.status"), toRead: "Claimed by Bea")
+        scrollToAndTap(app.buttons["detail.message"])
+        sendChatMessage("On my way")
+        XCTAssertTrue(chatBubble(containing: "You said: On my way").waitForExistence(timeout: Self.waitTimeout))
+        app.navigationBars.buttons.firstMatch.tap()
+        app.navigationBars.buttons.firstMatch.tap()
+
+        switchUser(to: "user-alex")
+        openTab("My Activity")
+        app.segmentedControls["activity.segment"].buttons["My requests"].tap()
+        let claimed = row("activity.row.", containing: "Claimed by Bea")
+        XCTAssertTrue(claimed.waitForExistence(timeout: Self.waitTimeout))
+        claimed.tap()
+        scrollToAndTap(app.buttons["detail.message"])
+        XCTAssertTrue(chatBubble(containing: "Bea said: On my way").waitForExistence(timeout: Self.waitTimeout))
+        sendChatMessage("Thank you!")
+        XCTAssertTrue(chatBubble(containing: "You said: Thank you!").waitForExistence(timeout: Self.waitTimeout))
+        app.navigationBars.buttons.firstMatch.tap()
+        scrollToAndTap(app.buttons["detail.complete"])
+        waitFor(element("detail.status"), toRead: "Completed")
+    }
+
+    /// Step 4: Alex leaves Bea a 5-star review, "Fast and friendly".
+    @MainActor
+    private func alexReviewsBea() {
+        scrollToAndTap(app.buttons["detail.review"])
+        XCTAssertTrue(app.buttons["review.star.5"].waitForExistence(timeout: Self.waitTimeout))
+        app.buttons["review.star.5"].tap()
+        element("review.comment").tap()
+        app.typeText("Fast and friendly")
+        app.buttons["review.submit"].tap()
+        XCTAssertTrue(element("detail.reviewSummary").waitForExistence(timeout: Self.waitTimeout))
+        app.navigationBars.buttons.firstMatch.tap()
+    }
+
+    /// Step 5: Bea has 110 points, the new review and the favor; Redeem shows FAVORLY-0001 and "10 of 100 points".
+    @MainActor
+    private func beaRedeemsAGiftCard() {
+        switchUser(to: "user-bea")
+        openTab("Profile")
+        waitFor(element("profile.score"), toRead: "110 points")
+        waitFor(element("profile.giftCardProgress"), toRead: "110 of 100 points")
+        scrollToAndTap(app.buttons["profile.redeem"])
+        waitFor(element("profile.rewardCode"), toRead: "FAVORLY-0001")
+        waitFor(element("profile.giftCardProgress"), toRead: "10 of 100 points")
+
+        let favor = row("profile.activity.", containing: "Need a cup of rice, Ingredient, Helped")
+        let review = app.descendants(matching: .any).matching(NSPredicate(
+            format: "identifier BEGINSWITH %@ AND label CONTAINS %@", "profile.review.", "from Alex"
+        )).firstMatch
+        for _ in 0 ..< 6 where !(review.exists && review.isHittable) {
+            app.swipeUp()
+        }
+        XCTAssertTrue(favor.exists)
+        XCTAssertTrue(review.label.hasSuffix(": Fast and friendly"))
+    }
+
+    /// Step 6: Chen opens Bea's profile from a request: score and reviews, no gift card.
+    @MainActor
+    private func chenSeesBeasPublicProfile() {
+        switchUser(to: "user-chen")
+        openTab("My Activity")
+        app.segmentedControls["activity.segment"].buttons["My requests"].tap()
+        let plants = row("activity.row.", containing: "Water my plants")
+        for _ in 0 ..< 4 where !(plants.exists && plants.isHittable) {
+            app.swipeUp()
+        }
+        plants.tap()
+        scrollToAndTap(element("detail.helper"))
+        waitFor(element("profile.name"), toRead: "Bea")
+        waitFor(element("profile.score"), toRead: "110 points")
+        XCTAssertFalse(element("profile.giftCardProgress").exists)
+        XCTAssertFalse(app.buttons["profile.redeem"].exists)
+        let review = app.descendants(matching: .any).matching(NSPredicate(
+            format: "identifier BEGINSWITH %@ AND label CONTAINS %@", "profile.review.", "from Alex"
+        )).firstMatch
+        for _ in 0 ..< 6 where !(review.exists && review.isHittable) {
+            app.swipeUp()
+        }
+        XCTAssertTrue(review.exists)
+    }
+
+    @MainActor
+    private func sendChatMessage(_ text: String) {
+        let input = element("chat.input")
+        XCTAssertTrue(input.waitForExistence(timeout: Self.waitTimeout))
+        input.tap()
+        app.typeText(text)
+        app.buttons["chat.send"].tap()
+    }
+
+    @MainActor
+    private func chatBubble(containing text: String) -> XCUIElement {
+        let matches = NSPredicate(format: "identifier BEGINSWITH %@ AND label CONTAINS %@", "chat.message.", text)
+        return app.descendants(matching: .any).matching(matches).firstMatch
     }
 
     @MainActor

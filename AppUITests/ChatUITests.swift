@@ -65,7 +65,8 @@ final class ChatUITests: UITestCase {
         app.textFields["post.title"].tap()
         app.typeText("Need a cup of rice\n")
         app.buttons["post.submit"].tap()
-        XCTAssertTrue(row("activity.row.", containing: "Need a cup of rice").waitForExistence(timeout: Self.waitTimeout))
+        XCTAssertTrue(row("activity.row.", containing: "Need a cup of rice")
+            .waitForExistence(timeout: Self.waitTimeout))
     }
 
     @MainActor
