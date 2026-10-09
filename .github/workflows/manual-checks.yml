@@ -1,0 +1,61 @@
+name: Manual checks
+
+# Run by hand from the Actions tab (or the API) on any branch. Lint is what a contributor runs locally;
+# screenshots regenerate the ScreenshotUITests captures and upload them as an artifact for a by-eye check.
+on:
+  workflow_dispatch:
+    inputs:
+      screenshots:
+        description: "Also capture screenshots (slow)"
+        type: boolean
+        default: false
+
+jobs:
+  lint:
+    name: SwiftLint and SwiftFormat
+    runs-on: macos-26
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v5
+      - name: Install tools
+        run: brew install swiftlint swiftformat
+      - name: SwiftLint
+        run: swiftlint lint --strict
+      - name: SwiftFormat
+        run: swiftformat --lint .
+
+  screenshots:
+    name: Screenshots (ScreenshotUITests)
+    if: ${{ inputs.screenshots }}
+    runs-on: macos-26
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v5
+      - name: Generate the Xcode project
+        run: |
+          brew install xcodegen
+          xcodegen generate
+      - name: Pick an iPhone simulator
+        run: |
+          udid=$(xcrun simctl list devices available -j | jq -r '
+            .devices | to_entries
+            | map(select(.key | contains("iOS")))
+            | map(.value |= map(select(.name | startswith("iPhone"))))
+            | map(select(.value | length > 0))
+            | sort_by(.key) | last | .value[0].udid')
+          test -n "$udid" && test "$udid" != "null"
+          echo "SIMULATOR_UDID=$udid" >> "$GITHUB_ENV"
+      - name: Capture screenshots
+        run: |
+          set -o pipefail
+          mkdir -p "$RUNNER_TEMP/screenshots"
+          TEST_RUNNER_SCREENSHOT_DIR="$RUNNER_TEMP/screenshots" xcodebuild test \
+            -project Favorly.xcodeproj -scheme Favorly \
+            -destination "platform=iOS Simulator,id=$SIMULATOR_UDID" \
+            -only-testing:FavorlyUITests/ScreenshotUITests | tail -n 200
+      - name: Upload screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: screenshots
+          path: ${{ runner.temp }}/screenshots
