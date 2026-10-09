@@ -13,12 +13,14 @@ public actor MockRequestRepository: RequestRepository {
     var reviews: [Review]
     /// Oldest first, across all users.
     var redemptions: [Redemption] = []
+    /// Oldest first, across all threads. The seed has none.
+    var messages: [ChatMessage] = []
 
     /// - Parameters:
     ///   - seed: Builds the starting requests, and again on every `reset()`.
     ///   - reviewSeed: Builds the starting reviews, and again on every `reset()`.
     ///   - artificialDelay: Wait before each read or write, so loading states are visible.
-    ///   - now: The clock used for `createdAt`, `claimedAt` and the time of a redemption.
+    ///   - now: The clock used for `createdAt`, `claimedAt`, and the time of a redemption or a message.
     public init(
         seed: @escaping @Sendable () -> [HelpRequest] = { DemoRequests.all() },
         reviewSeed: @escaping @Sendable () -> [Review] = { DemoReviews.all() },
@@ -116,11 +118,12 @@ public actor MockRequestRepository: RequestRepository {
         broadcaster.stream()
     }
 
-    /// Restores requests and reviews to the seed and removes every redemption.
+    /// Restores requests and reviews to the seed and removes every redemption and message.
     public func reset() async {
         requests = Self.indexed(seed())
         reviews = reviewSeed()
         redemptions = []
+        messages = []
         broadcaster.send()
     }
 
