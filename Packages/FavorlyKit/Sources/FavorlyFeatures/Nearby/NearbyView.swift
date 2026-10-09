@@ -44,9 +44,6 @@ struct NearbyView: View {
             }
         }
         .navigationTitle("Nearby")
-        .navigationDestination(for: RequestID.self) { id in
-            RequestDetailView(requestID: id, environment: environment)
-        }
         .refreshable { await viewModel.load() }
         .task(id: viewModel.reloadKey) { await viewModel.load() }
         .task { await viewModel.observeChanges() }
@@ -92,5 +89,6 @@ struct NearbyView: View {
 #Preview {
     NavigationStack {
         NearbyView(environment: .preview())
+            .appDestinations(.preview())
     }
 }

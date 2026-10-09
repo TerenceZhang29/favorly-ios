@@ -2,13 +2,11 @@ import FavorlyCore
 import SwiftUI
 
 struct ActivityView: View {
-    private let environment: AppEnvironment
     /// The request that was just posted, shown highlighted.
     private let highlightedRequestID: RequestID?
     @State private var viewModel: ActivityViewModel
 
     init(environment: AppEnvironment, highlightedRequestID: RequestID?) {
-        self.environment = environment
         self.highlightedRequestID = highlightedRequestID
         _viewModel = State(initialValue: ActivityViewModel(environment: environment))
     }
@@ -30,9 +28,6 @@ struct ActivityView: View {
             }
         }
         .navigationTitle("My Activity")
-        .navigationDestination(for: RequestID.self) { id in
-            RequestDetailView(requestID: id, environment: environment)
-        }
         .refreshable { await viewModel.load() }
         .task(id: viewModel.reloadKey) { await viewModel.load() }
         .task { await viewModel.observeChanges() }
@@ -85,5 +80,6 @@ struct ActivityView: View {
 #Preview {
     NavigationStack {
         ActivityView(environment: .preview(), highlightedRequestID: nil)
+            .appDestinations(.preview())
     }
 }

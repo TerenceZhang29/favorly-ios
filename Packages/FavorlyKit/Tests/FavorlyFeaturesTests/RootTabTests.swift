@@ -1,8 +1,10 @@
 @testable import FavorlyFeatures
 import Testing
 
-@Test func rootHasFourTabsInDemoOrder() {
-    #expect(RootTab.allCases == [.nearby, .post, .activity, .devSettings])
+@Test func rootHasFiveTabsInDemoOrder() {
+    #expect(RootTab.allCases == [.nearby, .post, .activity, .profile, .devSettings])
+    #expect(RootTab.profile.title == "Profile")
+    #expect(RootTab.profile.systemImage == "person.crop.circle")
 }
 
 @Test func rootTabsHaveDistinctTitlesAndIcons() {

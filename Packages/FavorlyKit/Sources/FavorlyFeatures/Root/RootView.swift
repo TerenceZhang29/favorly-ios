@@ -14,6 +14,7 @@ public struct RootView: View {
             ForEach(RootTab.allCases) { tab in
                 NavigationStack {
                     content(for: tab)
+                        .appDestinations(environment)
                 }
                 .tabItem {
                     Label(tab.title, systemImage: tab.systemImage)
@@ -42,6 +43,8 @@ public struct RootView: View {
             }
         case .activity:
             ActivityView(environment: environment, highlightedRequestID: newlyPostedID)
+        case .profile:
+            ProfileView(environment: environment)
         case .devSettings:
             DevSettingsView()
         }

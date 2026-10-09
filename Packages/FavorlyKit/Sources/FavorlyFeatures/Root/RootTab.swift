@@ -4,6 +4,7 @@ enum RootTab: String, CaseIterable, Identifiable, Sendable {
     case nearby
     case post
     case activity
+    case profile
     case devSettings
 
     var id: String { rawValue }
@@ -13,6 +14,7 @@ enum RootTab: String, CaseIterable, Identifiable, Sendable {
         case .nearby: "Nearby"
         case .post: "Post"
         case .activity: "My Activity"
+        case .profile: "Profile"
         case .devSettings: "Dev Settings"
         }
     }
@@ -22,6 +24,7 @@ enum RootTab: String, CaseIterable, Identifiable, Sendable {
         case .nearby: "location"
         case .post: "plus.circle"
         case .activity: "list.bullet"
+        case .profile: "person.crop.circle"
         case .devSettings: "gearshape"
         }
     }

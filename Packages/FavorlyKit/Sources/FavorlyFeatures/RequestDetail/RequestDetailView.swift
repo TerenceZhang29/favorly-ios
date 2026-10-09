@@ -81,15 +81,24 @@ struct RequestDetailView: View {
             if let distanceText = viewModel.distanceText {
                 fact("Distance", distanceText, id: "distance", systemImage: "ruler")
             }
-            fact(
+            person(
                 "Posted by",
                 viewModel.isOwn ? "\(viewModel.requesterName) (you)" : viewModel.requesterName,
                 id: "requester",
-                systemImage: "person"
+                systemImage: "person",
+                userID: request.requesterID,
+                score: viewModel.requesterScore
             )
             fact("Status", viewModel.statusText, id: "status", systemImage: "checkmark.seal")
-            if let helperName = viewModel.helperName {
-                fact("Helper", helperName, id: "helper", systemImage: "hands.sparkles")
+            if let helperID = request.helperID, let helperName = viewModel.helperName {
+                person(
+                    "Helper",
+                    helperName,
+                    id: "helper",
+                    systemImage: "hands.sparkles",
+                    userID: helperID,
+                    score: viewModel.helperScore
+                )
             }
         }
     }
@@ -137,6 +146,32 @@ struct RequestDetailView: View {
             }
         }
         .disabled(viewModel.isWorking)
+    }
+
+    /// A requester or helper row with their Kindness score. Tapping it opens their profile.
+    /// VoiceOver and the UI tests read the name as the value, as before; the score is in the hint.
+    private func person(
+        _ label: String,
+        _ name: String,
+        id: String,
+        systemImage: String,
+        userID: UserID,
+        score: Int?
+    ) -> some View {
+        NavigationLink(value: userID) {
+            HStack(spacing: Theme.Spacing.medium) {
+                FactRow(label: label, value: name, systemImage: systemImage)
+                if let score {
+                    ScoreLabel(points: score)
+                }
+            }
+        }
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(label)
+        .accessibilityValue(name)
+        .accessibilityHint(score.map { "Kindness score \($0). Opens their profile." } ?? "Opens their profile.")
+        .accessibilityAddTraits(.isButton)
+        .accessibilityIdentifier("detail.\(id)")
     }
 
     private func fact(_ label: String, _ value: String, id: String, systemImage: String) -> some View {
