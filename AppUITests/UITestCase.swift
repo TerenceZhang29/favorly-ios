@@ -38,7 +38,10 @@ class UITestCase: XCTestCase {
     @MainActor
     func switchUser(to id: String) {
         openTab("Dev Settings")
-        app.buttons["devSettings.user.\(id)"].tap()
+        let user = app.buttons["devSettings.user.\(id)"]
+        // Right after launch a slow simulator can still be drawing the tab.
+        XCTAssertTrue(user.waitForExistence(timeout: Self.waitTimeout))
+        user.tap()
     }
 
     /// Scrolls up until the element is on screen, for lists that grow at large text sizes, then taps it.
