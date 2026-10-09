@@ -38,7 +38,7 @@ Phase 3 was built in one cloud session with no Mac (see the 2026-10-09 session l
 
 1. Bring the work into `main`: `git checkout main && git pull && git merge --ff-only origin/claude/brave-cray-shr7y8 && git push`. The session could push only its own branch, so `main` was not moved and the branch was not renamed to `phase/3*`.
 2. Run the Phase 3 demo script in the README by hand, in light and in dark mode, and listen to the new rows with VoiceOver once (message bubbles, reviews, profile activities).
-3. Look at the Phase 3 screenshots in light, dark, `accessibility-large` and `accessibility-largest` (regenerate them with the `ScreenshotUITests` command in the README, or push a commit whose message contains `[screenshots]` to a `claude/**` branch and download the `screenshots` artifact). Commit the light, dark and `accessibility-large` sets to `docs/screenshots/phase-3/` and pick README images if you want any.
+3. Look at the Phase 3 screenshots in light, dark, `accessibility-large` and `accessibility-largest` (the commit recording this list was pushed with `[screenshots]`, so the "Manual checks" run for it on GitHub Actions has a `screenshots` artifact with all four sets; or regenerate them with the `ScreenshotUITests` command in the README). Commit the light, dark and `accessibility-large` sets to `docs/screenshots/phase-3/` and pick README images if you want any.
 4. Tag `v0.3.0-profiles` on the commit you are happy with and push the tag.
 
 **Judgment calls to confirm or change** (each is also in the decision log)
@@ -131,6 +131,29 @@ One row per commit, oldest first, grouped by phase. Every session adds its commi
 | 3A | `27f79c5` | feat(core): kindness models, repositories, rules and two new errors |
 | 3A | `403bcd9` | feat(data): history seeds 13-17, demo reviews, kindness and review reads in the mock repository |
 | 3A | `635a8ce` | feat(features): kindness and review repositories in AppEnvironment, demo wiring and preview stubs |
+| 3A | `889569b` | docs: record phase 3A progress |
+| CI | `3510875` | ci: manual workflow for SwiftLint, SwiftFormat and screenshots |
+| CI | `3165240` | ci: run CI and the lint checks on claude/** branches |
+| 3B | `82dfdb3` | feat(profile): profile view model with redeem, kindness scores on request detail |
+| 3B | `9f3653b` | feat(theme): avatar, score label and gift card components, avatar colors |
+| 3B | `b7dca3d` | feat(profile): profile tab, other users' profiles from request detail |
+| 3B | `6963a61` | test(ui): five tabs, profile UI tests and profile screenshots |
+| 3C | `8d879e7` | feat(core): chat message model, chat repository and chat rules |
+| 3C | `afeebde` | feat(data): chat threads in the mock repository |
+| 3C | `ba563e7` | feat(chat): chat view model, chat in AppEnvironment and the message entry point on request detail |
+| 3C | `bcb7273` | feat(chat): chat screen, message bubbles and the Message button, chat UI test |
+| 3D | `66a3a45` | feat(core): review draft, review rules and submitReview on ReviewRepository |
+| 3D | `bb7d005` | feat(data): submit reviews in the mock repository |
+| 3D | `b5b0cc7` | feat(review): review form view model, review state on request detail |
+| 3D | `7585e31` | feat(review): star rating, review form sheet, review on request detail and reviews on profiles, review UI test |
+| 3E | `56059b9` | test(ui): extended demo script, chat and review screenshots |
+| 3E | `70ba10a` | chore(app): version 0.3.0 |
+| 3E | `b19bc65` | docs: Phase 3 demo script in the README, new protocols and the one mock actor in the architecture notes |
+| 3E | `88f2f32` | docs: record phases 3B-3E progress and the owner's review list |
+| 3E | `19faa83` | style(detail): keep the person row helper under five parameters |
+| CI | `70825b9` | ci: keep the full xcodebuild log and print failing tests |
+| 3E | `33485dc` | test(ui): check the new favor before scrolling to the reviews |
+| 3E | `9e0d7e8` | fix(chat): close the chat before switching user in the UI test, scroll dismisses the keyboard; apply SwiftFormat rules |
 
 ## Confirmed decisions
 
@@ -298,6 +321,7 @@ Add entries as `YYYY-MM-DD · phase · decision · reason`.
 
 ## Known issues
 
+- Last CI result on the session branch (commit `9e0d7e8`): `swift test` and `xcodebuild test` (iOS simulator on `macos-26`, all UI tests including `ProfileUITests`, `ChatUITests`, `ReviewUITests` and `DemoFlowUITests.testExtendedDemoScript`) pass, and SwiftLint `--strict` and `swiftformat --lint` are clean. The first runs failed on one SwiftLint rule (`function_parameter_count`), two SwiftFormat rules (`hoistTry`, `wrapIfExpressionBodies`), the chat UI test switching user while the keyboard covered the tab bar, and the extended demo test checking a row it had scrolled past; all fixed
 - Phase 3 was built in a Linux container with no Xcode. `swift test` ran there (Swift 6.1.3) over Core, Data and every Features file and test that does not import SwiftUI, including every view model. All SwiftUI code (views, components, `Theme`) and the UI tests were compiled and run only by GitHub Actions on `macos-26`, through pushes to the session branch; SwiftLint and SwiftFormat ran there too (`manual-checks.yml`). No screen of Phase 3 has been looked at by a person
 - Not seen on screen by anyone: the profile, the gift card before and after redeeming, the chat, the review sheet, the review on Request Detail, the avatars in light and dark, and every new screen at the largest text sizes
 - The chat composer and the review sheet have not been tried with the keyboard on a real device; UI tests type into them on the simulator
