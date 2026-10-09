@@ -51,7 +51,11 @@ jobs:
           set -o pipefail
           xcodebuild test -project Favorly.xcodeproj -scheme Favorly \
             -destination "platform=iOS Simulator,id=$SIMULATOR_UDID" \
-            -resultBundlePath TestResults.xcresult | tail -n 400
+            -resultBundlePath TestResults.xcresult 2>&1 | tee xcodebuild.log | tail -n 400
+      - name: Show failures
+        if: failure()
+        run: |
+          grep -nE "error:|: Test failed|' failed \\(|XCTAssert|Failed to|Assertion Failure" xcodebuild.log | head -n 200
       - name: Upload test results
         if: failure()
         uses: actions/upload-artifact@v4
