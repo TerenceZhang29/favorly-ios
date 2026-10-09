@@ -2,8 +2,8 @@
 
 Updated by every coding session. Read this after `docs/PLAN.md`, `docs/PLAN-PHASE-2.md` and `docs/PLAN-PHASE-3.md`, and continue from the first unchecked item.
 
-**Current phase:** Phase 3 (Kindness score, profiles, chat and reviews). 3A is done, pending a green CI run on macOS (see Known issues). Phase 2 is complete (`v0.2.0-ui`), Phase 1 is complete (`v0.1.0-prototype`)
-**Next task:** Confirm CI is green for 3A, fast-forward `main` to it, then start 3B on `phase/3b-profile`. Still open for a person: run the demo script in the README by hand once, in light and in dark mode, and look over the final screenshots in `docs/screenshots/phase-2/`
+**Current phase:** Phase 3 (Kindness score, profiles, chat and reviews). 3A–3D are done and 3E is done except for the steps that need a person on a Mac. Phase 2 is complete (`v0.2.0-ui`), Phase 1 is complete (`v0.1.0-prototype`)
+**Next task:** The owner works through "Needs the owner's review" below: fast-forward `main` to `claude/brave-cray-shr7y8`, run the Phase 3 demo by hand, check the Phase 3 screenshots, then tag `v0.3.0-profiles`. Still open for a person: run the demo script in the README by hand once, in light and in dark mode, and look over the final screenshots in `docs/screenshots/phase-2/`
 
 ## Phase checklist
 
@@ -25,10 +25,34 @@ Phase 2, UI refresh ([PLAN-PHASE-2.md](PLAN-PHASE-2.md)):
 Phase 3, Kindness score, profiles, chat and reviews ([PLAN-PHASE-3.md](PLAN-PHASE-3.md)):
 
 - [x] **3A.** Kindness score: core and data (rules, repository, seed history)
-- [ ] **3B.** Profile tab with score and gift card
-- [ ] **3C.** Chat between requester and helper
-- [ ] **3D.** Reviews
-- [ ] **3E.** Hardening, demo, docs, tag `v0.3.0-profiles`
+- [x] **3B.** Profile tab with score and gift card (screenshots not yet checked by eye)
+- [x] **3C.** Chat between requester and helper
+- [x] **3D.** Reviews
+- [ ] **3E.** Hardening, demo, docs, tag `v0.3.0-profiles` (everything but the by-eye checks and the tag; see "Needs the owner's review")
+
+## Needs the owner's review
+
+Phase 3 was built in one cloud session with no Mac (see the 2026-10-09 session log). Everything below is waiting on a person.
+
+**To finish 3E**
+
+1. Bring the work into `main`: `git checkout main && git pull && git merge --ff-only origin/claude/brave-cray-shr7y8 && git push`. The session could push only its own branch, so `main` was not moved and the branch was not renamed to `phase/3*`.
+2. Run the Phase 3 demo script in the README by hand, in light and in dark mode, and listen to the new rows with VoiceOver once (message bubbles, reviews, profile activities).
+3. Look at the Phase 3 screenshots in light, dark, `accessibility-large` and `accessibility-largest` (regenerate them with the `ScreenshotUITests` command in the README, or push a commit whose message contains `[screenshots]` to a `claude/**` branch and download the `screenshots` artifact). Commit the light, dark and `accessibility-large` sets to `docs/screenshots/phase-3/` and pick README images if you want any.
+4. Tag `v0.3.0-profiles` on the commit you are happy with and push the tag.
+
+**Judgment calls to confirm or change** (each is also in the decision log)
+
+- Gift card above 100 points reads "110 of 100 points" with a full bar, not "100 of 100". Nothing is hidden, but it looks odd.
+- The gift card says "Every 100 points earns a $5 gift card." The $5 is the plan's placeholder.
+- Avatar colors: Alex blue, Bea indigo, Chen green, Dana pink (from the five colorful palette entries by a fixed hash of the user ID).
+- The chat thread stays readable after completion or cancellation, read-only, with a lock note. Sending after completion throws `notAllowed`, not a new error.
+- Message and Leave a review buttons: Message is a tinted (secondary) button, Leave a review is a filled (primary) one, both on Request Detail above Mark completed and Cancel.
+- Someone's own profile, reached from Request Detail, shows their gift card, the same as the Profile tab.
+- The review on Request Detail is shown to everyone who opens the request, titled "Your review" for its author and "Review" for anyone else.
+- Profile past activities show completed requests only on every profile, including your own; open and claimed ones stay in My Activity.
+- The Request Detail requester and helper rows are now tappable and show the score; VoiceOver still reads "Posted by, Bea" and adds the score as a hint.
+
 
 ## Commit map
 
@@ -241,11 +265,42 @@ Add entries as `YYYY-MM-DD · phase · decision · reason`.
 - 2026-10-09 · 3A · Phase 1 and 2 tests edited only for the larger seed: `DemoRequestsTests` (17 requests; the distance spread and status mix are checked on the first twelve, the Phase 1 set), `MockRequestRepositoryTests` (Chen posted 6, Chen picked up a claimed and a completed one, Bea picked up five completed ones) and `ActivityViewModelTests` (the same counts through the view model, and Bea's "Picked up by me" holds 6 after picking up the eggs). `DisplayTests` gets two new rows for the new error messages, and `AppEnvironmentTests` builds the environment with the new members · the guardrails allow edits where the plan changes what a test asserts
 - 2026-10-09 · 3A · New error messages: `alreadyReviewed` → "You already reviewed this favor.", `notEnoughPoints` → "You need 100 points to redeem a gift card." (the number comes from `KindnessRules.giftCardCost`) · plain wording in the style of the existing messages
 - 2026-10-09 · 3A · Worked on the session branch `claude/brave-cray-shr7y8`, not `phase/3a-kindness-core`, and did not fast-forward or push `main` · this session ran in a cloud container that may push only its assigned branch. The phase is one linear set of commits on top of `main`, so `git merge --ff-only claude/brave-cray-shr7y8` on `main` brings it in
+- 2026-10-09 · 3A–3E · Phases 3B to 3E were done back to back in the same cloud session as 3A, at the owner's request ("go straight through to 3E"), instead of one phase per session · the owner was away and asked for as much as possible without waiting on review. Each phase still has its own commits and its own entries here
+- 2026-10-09 · CI · `ci.yml` also runs on pushes to `claude/**` branches, and a new `manual-checks.yml` runs SwiftLint and SwiftFormat on those pushes (or by hand), plus `ScreenshotUITests` with an uploaded artifact when the commit message contains `[screenshots]` or it is run by hand with the box ticked · a cloud session has no Xcode, and GitHub only allows running a workflow by hand once it is on `main`, so pushes are how such a session builds the app and lints
+- 2026-10-09 · 3B · `ProfileViewModel(userID:environment:)` serves both the tab (`userID` nil, follows the signed-in user, reloads on a switch through `reloadKey`) and a pushed profile (fixed user). `isOwn` compares with the signed-in user, so your own profile opened from a request also shows the gift card · one view model and one view, as the plan's table lists
+- 2026-10-09 · 3B · Past activities are completed requests only, on every profile, labeled "Helped" or "Asked", newest pick-up first · the screen table says "completed requests"; rule 14 then holds for other people's profiles without a second code path
+- 2026-10-09 · 3B · Profile loads reviews and lists them from 3D on; in 3B the Kindness section already shows "5.0 average from 4 reviews" · the summary has the average anyway
+- 2026-10-09 · 3B · Gift-card progress text is "\(available) of 100 points" even above 100 ("110 of 100 points"), and the bar is capped at full · hiding points would be wrong, and the demo script's "10 of 100 points" after redeeming from 110 needs the true number. Listed for review
+- 2026-10-09 · 3B · `GiftCardCard` shows the code just redeemed in a tinted box ("Your reward code"), and earlier codes under "Past reward codes"; the explanation line reads "Every 100 points earns a $5 gift card." · the plan names a "$5" card as a placeholder. Listed for review
+- 2026-10-09 · 3B · Added `Theme.IconSize.avatar` (64) and `Theme.Colors.avatars` (brand and the four category colors). `UserID.avatarColor` picks one with a ×33 string hash of the raw ID, since Swift's `hashValue` changes between launches; the four demo users get four different colors (Alex blue, Bea indigo, Chen green, Dana pink), and `AvatarColorTests` checks it · the plan says "picked from the existing palette by a stable hash"; gray and the status colors would read as a state
+- 2026-10-09 · 3B · `AvatarView`, `ScoreLabel` and `GiftCardCard` live in `Shared/Components/`; `ProfileActivityRow` in `Profile/` · as the plan's table. `ScoreLabel` reads "Kindness score, 90 points" to VoiceOver, so UI tests read `profile.score` as "90 points"
+- 2026-10-09 · 3B · Navigation destinations moved out of `NearbyView` and `ActivityView` into one `AppDestinations` modifier that `RootView` applies to the root of each tab's stack: `RequestID` → Request Detail, `UserID` → profile · Request Detail now pushes profiles and Profile pushes Request Detail; registering each destination once avoids SwiftUI's duplicate-destination warnings deeper in a stack
+- 2026-10-09 · 3B · Request Detail's "Posted by" and "Helper" rows are `NavigationLink`s to that user's profile, with a `ScoreLabel` beside the name. The rows keep their identifiers (`detail.requester`, `detail.helper`), their label and their value ("Bea", "Bea (you)"), so `BrowseAndPickUpUITests` passes unedited; the score is spoken as the hint · the plan asks for tappable names and a score beside them, and existing identifiers and spoken text must not change
+- 2026-10-09 · 3B · `RequestDetailViewModel` gains `requesterScore` and `helperScore`, loaded with the request and after each action; a failed lookup leaves the score out rather than failing the screen · the score is extra information
+- 2026-10-09 · 3B · `RootTabTests` and `LaunchUITests` now expect five tabs (`testLaunchShowsFourTabs` became `testLaunchShowsFiveTabs`) · the plan changes the tab count
+- 2026-10-09 · 3B · `ScreenshotUITests` also captures `profile-empty` (Alex), `profile` (Bea) and `profile-other` (Bea's profile from Alex's request) · the plan asks for profile screenshots; they have not been looked at yet
+- 2026-10-09 · 3C · `ChatRules` has `validateRead`, `validateSend`, `canRead`, `canSend`, `validateText` and `messageLengthRange` (1...500). Sending on a completed or cancelled request throws `notAllowed`, and so does reading a request with no helper · the plan names `notAllowed` for non-participants; a new error just for "closed" would need a new message for a state the UI never offers
+- 2026-10-09 · 3C · A cancelled request that had a helper keeps its thread readable, like a completed one · rule 13 says the thread is read-only "after completion or cancellation"
+- 2026-10-09 · 3C · The seed has no messages, and `reset()` removes every message · "restores messages to the seed"; an empty thread also shows the "Say hello" state in the demo
+- 2026-10-09 · 3C · Chat opens from a "Message <name>" button (tinted, `SecondaryButtonStyle`) in its own section above Mark completed; it is shown to the requester and the helper whenever the request has a helper, so a finished thread can still be read. It pushes `ChatView` with `navigationDestination(isPresented:)` · a plain `NavigationLink` inside a list row draws a disclosure row, not a full-width button
+- 2026-10-09 · 3C · `ChatView` is a plain list of `MessageBubble`s with the composer (`TextField` and a `.borderedProminent` Send button in the brand tint) pinned under it with `safeAreaInset`; it scrolls to the newest message. The composer is hidden once the thread is read-only, and a gray lock note says why. An empty closed thread says "No messages" instead of "Say hello" · the plan's states
+- 2026-10-09 · 3C · `MessageBubble`: your messages on the right on a brand tint, the other person's on the left on a gray (`neutral`) tint, both in primary text, with "You · 9:41 PM" or "Bea · 9:41 PM" under them; VoiceOver reads "Bea said: On my way, at 9:41 PM". Added `Theme.Radius.bubble` (18) and `Theme.Spacing.bubbleInset` (48, the space kept free on the far side) · the plan asks for brand and neutral only; primary text on a 14% tint is at least as readable as the tested colored text
+- 2026-10-09 · 3C · The composer shows a count ("9 / 500") once you type, and an inline message only when the text is too long; an empty or whitespace-only message just disables Send · same pattern as the Post form
+- 2026-10-09 · 3D · `ReviewRules` has `validateReviewer(request:by:existing:)`, `canReview`, `validate(_:)` (returns the draft with the comment trimmed), `ratingRange` (1...5) and `maxCommentLength` (300). Messages: "Choose a rating from 1 to 5 stars." and "Comment must be 300 characters or fewer." · rule 12; the rating message only shows if something submits without one, since the form disables Submit
+- 2026-10-09 · 3D · The review form is a sheet with its own navigation bar (Cancel on the left), a five-star picker where each star is a button (`review.star.1`…`5`), an optional comment with a count in the footer, and a full-width Submit · the plan's screen table
+- 2026-10-09 · 3D · Request Detail shows the review in its own section, headed "Your review" for its author and "Review" for anyone else who opens the request; "Leave a review" is a filled button shown to the requester of a completed, unreviewed request · the plan names "Your review"; the helper and other people can already read reviews on the profile, so hiding it here would be inconsistent. Listed for review
+- 2026-10-09 · 3D · The profile's Reviews section lists every review newest first with stars, comment, "Dana · Oct 9"; with none it says "No reviews yet" · plan
+- 2026-10-09 · 3E · `DemoFlowUITests` keeps the Phase 1 script as it was and adds `testExtendedDemoScript` for the six Phase 3 steps; step 6 opens Bea's profile from Chen's "Water my plants for the weekend" (seed 13), a request she helped with · "extended" read as adding to it; the Phase 1 test still guards the original flow
+- 2026-10-09 · 3E · Spoken sentences: activity rows "Need a pinch of saffron, Ingredient, Helped, Downtown Brooklyn"; review rows "5 out of 5 stars from Dana, Oct 9: Fast and friendly"; message bubbles "Bea said: On my way, at 9:41 PM" · the 3E accessibility task
+- 2026-10-09 · 3E · `ScreenshotUITests` also captures the chat (empty and with a message), the review form (empty and filled), Request Detail with a review, and the profile's reviews: 25 captures per appearance · so the new screens can be checked by eye
+- 2026-10-09 · 3E · `MARKETING_VERSION` is `0.3.0`. The tag `v0.3.0-profiles` was not created · the tag should mark a commit a person has checked by hand; see "Needs the owner's review"
 - 2026-10-07 · 1A · Tab bar buttons are found by label in UI tests (`app.tabBars.buttons["Nearby"]`) · SwiftUI does not reliably pass a tab item's `accessibilityIdentifier` to the tab bar button
 
 ## Known issues
 
-- 3A was built in a Linux container with no Xcode, SwiftLint or SwiftFormat. `swift test` ran there (Swift 6.1.3) over Core, Data and every Features file and test that does not import SwiftUI: 154 tests pass with no warnings, including all four view model suites. Not run locally: the SwiftUI-importing Features tests (`AppEnvironmentTests`, `ThemeTests`, `RGBColorTests`, `RootTabTests`), the app build and the UI tests. Their 3A edits are mechanical (new `AppEnvironment` arguments), and the CI workflow (run by hand on the session branch) covers them. SwiftLint and SwiftFormat were not run; lines were kept under 120 characters by hand
+- Phase 3 was built in a Linux container with no Xcode. `swift test` ran there (Swift 6.1.3) over Core, Data and every Features file and test that does not import SwiftUI, including every view model. All SwiftUI code (views, components, `Theme`) and the UI tests were compiled and run only by GitHub Actions on `macos-26`, through pushes to the session branch; SwiftLint and SwiftFormat ran there too (`manual-checks.yml`). No screen of Phase 3 has been looked at by a person
+- Not seen on screen by anyone: the profile, the gift card before and after redeeming, the chat, the review sheet, the review on Request Detail, the avatars in light and dark, and every new screen at the largest text sizes
+- The chat composer and the review sheet have not been tried with the keyboard on a real device; UI tests type into them on the simulator
 - Not yet checked by a person: the demo script has only been run by `DemoFlowUITests`, and VoiceOver labels were set in code and read back through UI tests, not listened to with VoiceOver on.
 - The segmented radius and activity pickers do not grow with Dynamic Type. That is how the system control behaves; everything else was checked at the `accessibility-large` text size.
 - The red error banner on Request Detail (shown when an action fails) has not been seen on screen; no test flow makes an action fail.
@@ -281,6 +336,7 @@ Add entries as `YYYY-MM-DD · phase · decision · reason`.
 
 Newest first, one line per session: `YYYY-MM-DD · phase · what was done · next step`.
 
+- 2026-10-09 · 3B–3E · Profile tab and other users' profiles with score, gift card and redeem; scores and tappable names on Request Detail; chat (rules, mock, screen, Message button); reviews (rules, submit, star picker, review sheet, review on Request Detail and on profiles); `ProfileUITests`, `ChatUITests`, `ReviewUITests`, `DemoFlowUITests.testExtendedDemoScript`, new screenshot captures; version 0.3.0, README and architecture notes; CI on `claude/**` branches and a lint and screenshot workflow. View models and rules pass on Linux; the app, the UI tests and lint ran on GitHub Actions (results in the commit map rows and below) · the owner's review list at the top of this file
 - 2026-10-09 · 3A · `Review`, `Redemption`, `KindnessSummary` and their IDs, `KindnessRepository`, `ReviewRepository` (reads), `KindnessRules`, `alreadyReviewed` and `notEnoughPoints` with messages; seeds 13–17 and `DemoReviews` (Bea 90, Chen 18, Dana 0, Alex 0); kindness and review conformances on `MockRequestRepository`; `kindness` and `reviews` in `AppEnvironment`, demo wiring, preview stubs and `TestWorld`. 154 tests pass on Linux; app build, UI tests and lint left to CI and a Mac · confirm CI, fast-forward `main`, start 3B on `phase/3b-profile`
 - 2026-10-09 · 2D · Consistency pass (no style literals left outside `Theme`), accessibility pass at the largest text size, with Increase Contrast and with Reduce Transparency (three row layout fixes), app icon and its script, version `0.2.0`, README and architecture docs, refreshed screenshots; 138 package tests and 12 UI tests pass, the four behavior classes unedited; Core, Data, view model and existing test diff is empty; SwiftLint and SwiftFormat clean; tagged `v0.2.0-ui` · start 3A on `phase/3a-kindness-core`
 - 2026-10-09 · Phase 3 plan · Wrote `docs/PLAN-PHASE-3.md` (Kindness score, profiles, chat and reviews in five phases, 3A–3E), added the Phase 3 checklist, decisions and open questions here, updated `CLAUDE.md` and the README to point at it; no code changed · finish 2D on `phase/2d-polish`, then start 3A on `phase/3a-kindness-core`
