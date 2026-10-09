@@ -1,8 +1,8 @@
 # Progress
 
-Updated by every coding session. Read this after `docs/PLAN.md` and `docs/PLAN-PHASE-2.md`, and continue from the first unchecked item.
+Updated by every coding session. Read this after `docs/PLAN.md`, `docs/PLAN-PHASE-2.md` and `docs/PLAN-PHASE-3.md`, and continue from the first unchecked item.
 
-**Current phase:** Phase 2 (UI refresh). 2A, 2B and 2C are done; 2D is next. Phase 1 is complete (`v0.1.0-prototype`)
+**Current phase:** Phase 2 (UI refresh). 2A, 2B and 2C are done; 2D is next. Phase 3 (Kindness score, profiles, chat and reviews) is planned and starts after 2D. Phase 1 is complete (`v0.1.0-prototype`)
 **Next task:** Start 2D on `phase/2d-polish`: consistency and accessibility passes, app icon, version `0.2.0`, README and architecture docs, tag `v0.2.0-ui`. Still open from Phase 1: run the demo script in the README by hand once
 
 ## Phase checklist
@@ -21,6 +21,14 @@ Phase 2, UI refresh ([PLAN-PHASE-2.md](PLAN-PHASE-2.md)):
 - [x] **2B.** Nearby and Request Detail, then the review gate
 - [x] **2C.** Post, My Activity and Dev Settings
 - [ ] **2D.** Polish, app icon, docs, tag `v0.2.0-ui`
+
+Phase 3, Kindness score, profiles, chat and reviews ([PLAN-PHASE-3.md](PLAN-PHASE-3.md)):
+
+- [ ] **3A.** Kindness score: core and data (rules, repository, seed history)
+- [ ] **3B.** Profile tab with score and gift card
+- [ ] **3C.** Chat between requester and helper
+- [ ] **3D.** Reviews
+- [ ] **3E.** Hardening, demo, docs, tag `v0.3.0-profiles`
 
 ## Commit map
 
@@ -193,6 +201,13 @@ Add entries as `YYYY-MM-DD · phase · decision · reason`.
 - 2026-10-08 · 2C · The Post submit error is its own section above the button, and the Category section has no header · the button row has no card, so the error needs one; adding a "Category" header would add a visible string
 - 2026-10-08 · 2C · Dev Settings keeps the system section headers and its footer; only the checkmarks (brand color, semibold) and the Reset button changed · the plan asks for it to stay the plainest screen
 - 2026-10-08 · 2C · `docs/screenshots/phase-2/` now holds the full set: 16 captures in light, dark and `accessibility-large` (48 images, 11 MB) · replaces the 2B subset
+- 2026-10-09 · Phase 3 plan · The Phase 3 plan is its own file, `docs/PLAN-PHASE-3.md`, with five phases 3A–3E; Kindness score and Profile come first (3A, 3B), then chat and reviews · the owner set those two as priorities 1 and 2
+- 2026-10-09 · Phase 3 plan · Kindness score: 10 points to the helper per completed request plus 2 per review star; only helping earns points · owner's choice
+- 2026-10-09 · Phase 3 plan · Gift card: progress toward 100 points plus a fake Redeem that deducts the points and shows a reward code; the lifetime score never drops · owner's choice
+- 2026-10-09 · Phase 3 plan · Reviews: the requester reviews the helper, once per completed request · owner's choice
+- 2026-10-09 · Phase 3 plan · Profile picture: an initials avatar drawn in code, no image assets · owner's choice; keeps Phase 2's no-image-assets rule
+- 2026-10-09 · Phase 3 plan · New capabilities are three new Core protocols (`KindnessRepository`, `ReviewRepository`, `ChatRepository`), all implemented by the one `MockRequestRepository` actor · `RequestRepository` stays as it is, and one actor keeps cross-cutting rules atomic with one `changes()` stream and one `reset()`
+- 2026-10-09 · Phase 3 plan · Five completed seed requests and seed reviews are added so Bea starts at 90 points; none involve Alex · profiles need history and the demo must reach a gift card in one favor, without changing Alex's empty states or any Nearby count
 - 2026-10-07 · 1A · Tab bar buttons are found by label in UI tests (`app.tabBars.buttons["Nearby"]`) · SwiftUI does not reliably pass a tab item's `accessibilityIdentifier` to the tab bar button
 
 ## Known issues
@@ -215,6 +230,11 @@ Add entries as `YYYY-MM-DD · phase · decision · reason`.
 
 ## Open questions
 
+- Phase 3: the helper can mark a request completed (Phase 1 rule 4), so a helper can award themselves 10 points. Default: leave it for the prototype; later, award points only when the requester confirms.
+- Phase 3: are 10 points per favor, 2 per star and 100 points for a "$5" gift card the right values? Default: yes, as placeholders in `KindnessRules`.
+- Phase 3: should chat stay open for sending after a request is completed? Default: no, the thread becomes read-only.
+- Phase 3: what does someone else's profile show? Default: completed requests only, never gift-card progress or reward codes.
+- Should 2D finish before 3A? Default: yes. If features go first, 2D's consistency pass runs after 3E and covers the new screens.
 - Review gate after 2B. Resolved 2026-10-08: the repo owner looked at the Nearby and Request Detail screenshots and approved them as they are (teal brand, rounded-rectangle badges, pill-shaped action buttons). No palette or component changes were requested.
 - Phase 2: is teal the right brand color, and who approves the look at the review gate after 2B? Defaults: teal, and the repo owner.
 - 1B through 1G were each branched from the previous phase branch because the earlier pull requests were not merged yet. Resolved: no pull requests; `main` was fast-forwarded to the last phase branch, which contains the earlier ones.
@@ -224,6 +244,7 @@ Add entries as `YYYY-MM-DD · phase · decision · reason`.
 
 Newest first, one line per session: `YYYY-MM-DD · phase · what was done · next step`.
 
+- 2026-10-09 · Phase 3 plan · Wrote `docs/PLAN-PHASE-3.md` (Kindness score, profiles, chat and reviews in five phases, 3A–3E), added the Phase 3 checklist, decisions and open questions here, updated `CLAUDE.md` and the README to point at it; no code changed · finish 2D on `phase/2d-polish`, then start 3A on `phase/3a-kindness-core`
 - 2026-10-08 · 2C · Review gate passed with no changes. `PostRequestView`, `ActivityRow`, `ActivityView` and `DevSettingsView` restyled; every screen now uses the theme; screenshots in light, dark and `accessibility-large` checked by eye; 138 package tests (1 new) and the four behavior UI test classes pass unedited; Core, Data and view model diff is empty · start 2D on `phase/2d-polish`
 - 2026-10-08 · 2B · `RequestRow`, `NearbyView` and `RequestDetailView` restyled; screenshots in light, dark and `accessibility-large` checked by eye; 137 package tests and the four behavior UI test classes pass unedited; Core, Data and view model diff is empty · hold the review gate, then start 2C
 - 2026-10-08 · 2A · "Before" screenshots (12, light and dark), `RGBColor`, `AdaptiveColor`, `Theme`, category and status colors, six shared components plus the optional `FactRow` symbol, brand tint and accent color; 137 package tests (12 new) and all UI tests pass unedited; Core, Data and view model diff is empty · start 2B on `phase/2b-nearby-detail`
