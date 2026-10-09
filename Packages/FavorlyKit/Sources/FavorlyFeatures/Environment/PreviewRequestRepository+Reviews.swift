@@ -10,4 +10,8 @@ extension PreviewRequestRepository: ReviewRepository {
     func review(for request: RequestID) async throws -> Review? {
         reviews.first { $0.requestID == request }
     }
+
+    func submitReview(_: NewReviewDraft, for _: RequestID, by _: UserID) async throws -> Review {
+        throw FavorlyError.notAllowed
+    }
 }
